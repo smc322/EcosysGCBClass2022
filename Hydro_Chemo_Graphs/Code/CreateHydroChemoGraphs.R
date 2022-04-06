@@ -109,8 +109,10 @@ chemo_hydrograph(Gl4Chem, Gl4Chem$POC, "Particulate Organic P"~(mg~L^-1), Gl4Dis
 # Question for the group - what parameters do we care most about? 
 
 # Linnea thinks Albion and Green Lake 4 have the best data, most consistently collected and longest records.
+AlbChemStoich <- AlbChem |>
+  mutate(tntp = as.numeric(TN)/as.numeric(TP))
 
-
+chemo_hydrograph(AlbChemStoich, AlbChemStoich$tntp, "N:P", AlbDis)
 
 
 
