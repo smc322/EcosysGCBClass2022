@@ -6,13 +6,14 @@ chemo_hydrograph <- function(chemData, chemVar, name_units, disData) {
   
   chemData.1 <- chemData |>
     mutate(chemVar = as.numeric(chemVar)) |>
-    filter(!is.na(chemVar))
+    filter(!is.na(chemVar))|>
+    filter(chemVar != Inf)
   
   
   mindate <- min(chemData.1$date)
   maxdate <- max(chemData.1$date)
   
-  coef <- mean(as.numeric(chemVar), na.rm = TRUE) / mean(disData$discharge_rate, na.rm = TRUE)
+  coef <- mean(as.numeric(chemData.1$chemVar), na.rm = TRUE) / mean(disData$discharge_rate, na.rm = TRUE)
   
   
   ggplot() +

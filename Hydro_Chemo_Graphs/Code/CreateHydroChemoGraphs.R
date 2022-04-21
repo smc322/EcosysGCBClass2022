@@ -87,32 +87,29 @@ chemo_hydrograph(Gl4Chem, Gl4Chem$IP, "Inorganic P"~(mu~mol~L^-1), Gl4Dis)
 # chemo_hydrograph(SadChem, SadChem$IP, "Inorganic P"~(mu~mol~L^-1), SadDis)
 
 #TOC 
-chemo_hydrograph(AlbChem, AlbChem$TOC, "Total Organic P"~(mg~L^-1), AlbDis) # - no data
-chemo_hydrograph(Gl4Chem, Gl4Chem$TOC, "Total Organic P"~(mg~L^-1), Gl4Dis) # limited data
+chemo_hydrograph(AlbChem, AlbChem$TOC, "Total Organic C"~(mg~L^-1), AlbDis) # - no data
+chemo_hydrograph(Gl4Chem, Gl4Chem$TOC, "Total Organic C"~(mg~L^-1), Gl4Dis) # limited data
 # chemo_hydrograph(MarChem, MarChem$TOC, "Total Organic P"~(mg~L^-1), MarDis) # limited data
 # chemo_hydrograph(SadChem, SadChem$TOC, "Total Organic P"~(mg~L^-1), SadDis) # limited data
 
 #DOC
-chemo_hydrograph(AlbChem, AlbChem$DOC, "Dissolved Organic P"~(mg~L^-1), AlbDis)
-chemo_hydrograph(Gl4Chem, Gl4Chem$DOC, "Dissolved Organic P"~(mg~L^-1), Gl4Dis)
+chemo_hydrograph(AlbChem, AlbChem$DOC, "Dissolved Organic C"~(mg~L^-1), AlbDis)
+chemo_hydrograph(Gl4Chem, Gl4Chem$DOC, "Dissolved Organic C"~(mg~L^-1), Gl4Dis)
 # chemo_hydrograph(MarChem, MarChem$DOC, "Dissolved Organic P"~(mg~L^-1), MarDis)
 # chemo_hydrograph(SadChem, SadChem$DOC, "Dissolved Organic P"~(mg~L^-1), SadDis)
 
 #POC
-chemo_hydrograph(AlbChem, AlbChem$POC, "Particulate Organic P"~(mg~L^-1), AlbDis) # - no data
-chemo_hydrograph(Gl4Chem, Gl4Chem$POC, "Particulate Organic P"~(mg~L^-1), Gl4Dis) # limited data
+chemo_hydrograph(AlbChem, AlbChem$POC, "Particulate Organic C"~(mg~L^-1), AlbDis) # - no data
+chemo_hydrograph(Gl4Chem, Gl4Chem$POC, "Particulate Organic C"~(mg~L^-1), Gl4Dis) # limited data
 # chemo_hydrograph(MarChem, MarChem$POC, "Particulate Organic P"~(mg~L^-1), MarDis) # limited data
 # chemo_hydrograph(SadChem, SadChem$POC, "Particulate Organic P"~(mg~L^-1), SadDis) # limited data
 
 
 ### Notes
-# Question for the group - what parameters do we care most about? 
+# Question for the group - what parameters do we care most about? -- N!!!
 
 # Linnea thinks Albion and Green Lake 4 have the best data, most consistently collected and longest records.
-AlbChemStoich <- AlbChem |>
-  mutate(tntp = as.numeric(TN)/as.numeric(TP))
 
-chemo_hydrograph(AlbChemStoich, AlbChemStoich$tntp, "N:P", AlbDis)
 
 
 
