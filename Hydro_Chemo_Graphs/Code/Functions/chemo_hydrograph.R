@@ -18,7 +18,7 @@ chemo_hydrograph <- function(chemData, chemVar, name_units, disData) {
   
   ggplot() +
     geom_line(disData, mapping = aes(date, discharge_rate * coef), color = "#9A9391") +
-    geom_line(chemData.1, mapping = aes(date, chemVar), color = "#fb8472") +
+    geom_line(chemData.1, mapping = aes(date, chemVar), color = "#d14411") +
     theme_light() +
     scale_x_date(limits = c(mindate, maxdate)) +
     labs(x = "") +
@@ -30,7 +30,7 @@ chemo_hydrograph <- function(chemData, chemVar, name_units, disData) {
       sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
     )  +
     theme(axis.title.y.right = element_text(color = "#9A9391"),
-          axis.title.y = element_text(color = "#fb8472")) 
+          axis.title.y = element_text(color = "#d14411")) 
   
 }
 

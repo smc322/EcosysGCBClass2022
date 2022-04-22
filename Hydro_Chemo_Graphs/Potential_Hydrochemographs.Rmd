@@ -1,0 +1,42 @@
+---
+title: "Potential Hydrochemographs"
+author: "LAR"
+date: "4/22/2022"
+output: html_document
+---
+
+```{r setup, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
+source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
+
+### potential hydrochemographs from Green Lake 4 ###
+source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/CallData.R")
+Gl4stoich <- Gl4Chem |>
+ # mutate(tntp = as.numeric(TN)/as.numeric(TP)) |>
+  mutate(tdn.tdp = as.numeric(TDN)/as.numeric(TDP),
+         don.dop = as.numeric(DON)/as.numeric(DOP))
+
+p1 <- chemo_hydrograph(Gl4stoich, Gl4stoich$don.dop, "DON:DOP (molar ratio)", Gl4Dis)
+p2 <- chemo_hydrograph(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP (molar ratio)", Gl4Dis)
+p3 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NH4., "Ammonium"~(mu~eq~L^-1), Gl4Dis)
+p4 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NO3., "Nitrate"~(mu~eq~L^-1), Gl4Dis)
+p5 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDN, "Total Dissolved N"~(mu~mol~L^-1), Gl4Dis)
+p6 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DON, "Dissolved Organic N"~(mu~mol~L^-1), Gl4Dis)
+p7 <- chemo_hydrograph(Gl4Chem, Gl4Chem$IN, "Inorganic N"~(mu~eq~L^-1), Gl4Dis)
+p8 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDP, "Total Dissolved P"~(mu~mol~L^-1), Gl4Dis)
+p9 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DOP, "Dissolved Organic P"~(mu~mol~L^-1), Gl4Dis)
+```
+
+## Niwot Ridge LTER 
+These data are from the stream outlet of Green Lake 4. The winter chemistry data is collected beneath the ice in the lake. During 2014, the discharge data deviates from the other streams and the typical seasonal pattern. The lead technician for Niwot Ridge LTER reported nothing obvious on the ground that would casue an error. So it is possible that the discharge data from 2014 are either real or there could have been some sort of sensor issue. 
+
+### Stoichiometry timeseries if we decide we want to use any of these
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+p1
+p2
+```
+
+
+## Data Sources
+Caine, N., J. Morse, and Niwot Ridge LTER. 2022. Streamflow for Green Lake 4, 1981 - ongoing. ver 15. Environmental Data Initiative. https://doi.org/10.6073/pasta/ff6f7947279eeeeca851baed6cd6f41a (Accessed 2022-04-22).
+
+Caine, T. 2021. Stream water chemistry data for Green Lake 4, 1982 - ongoing. ver 12. Environmental Data Initiative. https://doi.org/10.6073/pasta/277121f0334757746d9d52ce2c2e82ab (Accessed 2022-04-22).

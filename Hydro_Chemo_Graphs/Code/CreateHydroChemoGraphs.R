@@ -11,8 +11,8 @@ source("Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
 #NH4+
 chemo_hydrograph(AlbChem, AlbChem$NH4., "Ammonium"~(mu~eq~L^-1), AlbDis)
 chemo_hydrograph(Gl4Chem, Gl4Chem$NH4., "Ammonium"~(mu~eq~L^-1), Gl4Dis)
-#chemo_hydrograph(MarChem, MarChem$NH4., "Ammonium"~(mu~eq~L^-1), MarDis)
-#chemo_hydrograph(SadChem, SadChem$NH4., "Ammonium"~(mu~eq~L^-1), SadDis)
+# chemo_hydrograph(MarChem, MarChem$NH4., "Ammonium"~(mu~eq~L^-1), MarDis)
+# chemo_hydrograph(SadChem, SadChem$NH4., "Ammonium"~(mu~eq~L^-1), SadDis)
 
 #NO3-
 chemo_hydrograph(AlbChem, AlbChem$NO3., "Nitrate"~(mu~eq~L^-1), AlbDis)
