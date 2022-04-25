@@ -30,7 +30,8 @@ chemo_hydrograph <- function(chemData, chemVar, name_units, disData) {
       sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
     )  +
     theme(axis.title.y.right = element_text(color = "#9A9391"),
-          axis.title.y = element_text(color = "#d14411")) 
+          axis.title.y = element_text(color = "#d14411"),
+          axis.line.y.left = element_line(color = "#d14411")) 
   
 }
 
