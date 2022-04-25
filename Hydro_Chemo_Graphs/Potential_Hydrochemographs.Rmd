@@ -8,8 +8,9 @@ output: html_document
 ```{r setup, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
 source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
 
+library(tidyverse)
 ### potential hydrochemographs from Green Lake 4 ###
-source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/CallData.R")
+source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Call_Data.R") 
 Gl4stoich <- Gl4Chem |>
  # mutate(tntp = as.numeric(TN)/as.numeric(TP)) |>
   mutate(tdn.tdp = as.numeric(TDN)/as.numeric(TDP),
@@ -46,7 +47,7 @@ p2
 ```
 
 We have good data to create hydrochemographs for ammonium, nitrate, TDN, DON, IN, TDP, and DOP. Here is the nitrate hydrochemograph. Note the units are the worst possible units anyone could provide with data. 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p4
 ```
 
