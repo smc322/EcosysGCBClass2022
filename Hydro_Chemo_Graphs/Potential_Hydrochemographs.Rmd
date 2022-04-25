@@ -29,11 +29,20 @@ p9 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DOP, "Dissolved Organic P"~(mu~mol~L^-1)
 ## Niwot Ridge LTER 
 These data are from the stream outlet of Green Lake 4. The winter chemistry data is collected beneath the ice in the lake. During 2014, the discharge data deviates from the other streams and the typical seasonal pattern. The lead technician for Niwot Ridge LTER reported nothing obvious on the ground that would casue an error. So it is possible that the discharge data from 2014 are either real or there could have been some sort of sensor issue. 
 
-### Stoichiometry timeseries if we decide we want to use any of these
+### Stoichiometry hydrochemographs
+Stoichiometric timeseries if we decide we want to use any of these
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p1
 p2
 ```
+
+We have good data to create hydrochemographs for ammonium, nitrate, TDN, DON, IN, TDP, and DOP. Here is the nitrate hydrochemograph:
+```{r}
+p4
+```
+
+
+
 
 
 ## Data Sources
