@@ -7,12 +7,12 @@ library(tidyverse)
 ## Read in discharge data
 
 # Albion 
-AlbDis <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Discharge/albdisch.nc.data.csv") |>
+AlbDis <- read.csv("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Discharge/albdisch.nc.data.csv") |>
   mutate(date = as.Date(date)) |>
   mutate(discharge_rate = discharge / 86400) #convert cubic meters daily flow volume to cubic meters per second discharge
 
 #Green Lake 4
-Gl4Dis <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Discharge/gl4disch.nc.data.csv") |>
+Gl4Dis <- read.csv("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Discharge/gl4disch.nc.data.csv") |>
   mutate(date = as.Date(date)) |>
   mutate(discharge_rate = discharge / 86400) #convert cubic meters daily flow volume to cubic meters per second discharge
 
@@ -30,12 +30,12 @@ Gl4Dis <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_
 ## Read in chemistry data
 
 # Albion 
-AlbChem <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/WaterChem/albisolu.nc.data.csv") |>
+AlbChem <- read.csv("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/WaterChem/albisolu.nc.data.csv") |>
   mutate(date = as.Date(date)) |>
   mutate(local_site = "alb")
 
 #Green Lake 4
-Gl4Chem <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/WaterChem/gre4solu.nc.data.csv") |>
+Gl4Chem <- read.csv("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/WaterChem/gre4solu.nc.data.csv") |>
   mutate(date = as.Date(date)) |>
   mutate(local_site = "gl4")
 
