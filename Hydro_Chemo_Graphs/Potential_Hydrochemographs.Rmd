@@ -6,11 +6,11 @@ output: html_document
 ---
 
 ```{r setup, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
-source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
+source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
 
 library(tidyverse)
 ### potential hydrochemographs from Green Lake 4 ###
-source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Call_Data.R") 
+source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Call_Data.R") 
 Gl4stoich <- Gl4Chem |>
  # mutate(tntp = as.numeric(TN)/as.numeric(TP)) |>
   mutate(tdn.tdp = as.numeric(TDN)/as.numeric(TDP),
@@ -27,7 +27,7 @@ p8 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDP, "Total Dissolved P"~(mu~mol~L^-1), 
 p9 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DOP, "Dissolved Organic P"~(mu~mol~L^-1), Gl4Dis)
 
 ### potential hydrochemogrpahs from Loch Vale outlet ###
-lochvale <- read.csv("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
+lochvale <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
   select(-X, -X.1) |>
   mutate(date = as.Date(Date))
 
