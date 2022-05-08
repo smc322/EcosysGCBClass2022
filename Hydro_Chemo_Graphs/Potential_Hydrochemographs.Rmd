@@ -28,10 +28,10 @@ p1 <- chemo_hydrograph(Gl4stoich, Gl4stoich$don.dop, "DON:DOP (molar ratio)", Gl
 p2 <- chemo_hydrograph(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP (molar ratio)", Gl4Dis) # use
 p3 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NH4., "Ammonium"~(mu~eq~L^-1), Gl4Dis)
 p4 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NO3., "Nitrate"~(mu~eq~L^-1), Gl4Dis) # use
-p5 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDN, "Total Dissolved N"~(mu~mol~L^-1), Gl4Dis)
+p5 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDN, "Total Dissolved N"~(mu~mol~L^-1), Gl4Dis) # use
 p6 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DON, "Dissolved Organic N"~(mu~mol~L^-1), Gl4Dis)
 p7 <- chemo_hydrograph(Gl4Chem, Gl4Chem$IN, "Inorganic N"~(mu~eq~L^-1), Gl4Dis)
-p8 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDP, "Total Dissolved P"~(mu~mol~L^-1), Gl4Dis)
+p8 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDP, "Total Dissolved P"~(mu~mol~L^-1), Gl4Dis) # use
 p9 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DOP, "Dissolved Organic P"~(mu~mol~L^-1), Gl4Dis)
 
 ### potential hydrochemogrpahs from Loch Vale outlet ###
@@ -49,55 +49,84 @@ p12 <- chemo_hydrograph(lochvale, lochvale$Phosphate_mgl, "Phosphate"~(mg~~L^-1)
 ```
 
 
-```{r setup, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
+```{r, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
 
 # water year graphs
-source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
+source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/wateryearplot.R")
 
 ### Green Lake 4 ###
-p13 <- wateryearplot(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP (molar ratio)")
+
+p13.inset <- wateryearplot(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP")
+#make another TDN:TDP, but limit the values because it is impossible to see the pattern. Make above an inset
+p13.outset <- wateryearplot(Gl4stoich |> filter(tdn.tdp < 2500), (Gl4stoich |> filter(tdn.tdp < 2500))$tdn.tdp, "TDN:TDP (molar ratio)")
+library(patchwork)
+p13<- p13.outset + inset_element(p13.inset,0,0.6,0.4,1)
+
 p14 <- wateryearplot(Gl4Dis, Gl4Dis$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s ^ -1))
 p15 <- wateryearplot(Gl4stoich, Gl4stoich$NO3., "Nitrate"~(mu~eq~L^-1))
+p16 <- wateryearplot(Gl4stoich, Gl4stoich$TDN, "Total Dissolved N"~(mu~mol~L^-1))
+p17 <- wateryearplot(Gl4stoich, Gl4stoich$TDP, "Total Dissolved P"~(mu~mol~L^-1))
 
 ### Loch Vale ###
-p16 <- wateryearplot(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~L~L^-1))
-p17 <- wateryearplot(lochvale,lochvale$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+p18 <- wateryearplot(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~L~L^-1))
+p19 <- wateryearplot(lochvale,lochvale$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s ^ -1))
 
 ```
 
 
-```{r}
+```{r, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
 # Make a graph of Green Lake 4 TDN and TDP data 
-# modifying code from chemo_hydrograph function
+
+#subset the data and pivot long 
+df_subset <- Gl4stoich |>
+  select(date, TDN, TDP) |>
+  rename(Date = date) |>
+  mutate(TDN = as.numeric(TDN)) |>
+ # mutate(`TDN/2` = as.numeric(TDN)/2) |>
+  mutate(TDP = as.numeric(TDP)) |>
+  pivot_longer(c(TDN, TDP), names_to = "Var", values_to = "mu_mol") |>
+  mutate(CDate = as.Date(paste0(
+    ifelse(month(Date) < 10, "1901", "1900"),
+    "-",
+    month(Date),
+    "-",
+    day(Date)
+  ))) |>
+  drop_na(mu_mol)
+
+df_subset.2 <- addWaterYear(df_subset)
+
+
+p20 <- ggplot() +
+    geom_line(df_subset, mapping = aes(Date, mu_mol, color = Var)) +
+    theme_light() +
+    scale_y_log10() +
+    labs(x = "",
+         y = "Concentration"~(mu~mol~L^-1))
+
+# And here is a figure of streamflow with TDN and TDP -- code adapted from chem_hydrograph.R function
+
  
- # chemData.1 <- Gl4Chem |>
- #    mutate(chemVar = as.numeric(TDN)) |>
- #    filter(!is.na(chemVar))|>
- #    filter(chemVar != Inf)
- #  
- #  
- #  mindate <- min(chemData.1$date)
- #  maxdate <- max(chemData.1$date)
- #  
- #  coef <- mean(as.numeric(chemData.1$chemVar), na.rm = TRUE) / mean(disData$discharge_rate, na.rm = TRUE)
- #  
- #  
- #  ggplot() +
- #    geom_line(disData, mapping = aes(date, discharge_rate * coef), color = "#9A9391") +
- #    geom_line(chemData.1, mapping = aes(date, chemVar), color = "#d14411") +
- #    theme_light() +
- #    scale_x_date(limits = c(mindate, maxdate)) +
- #    labs(x = "") +
- #    scale_y_continuous(
- #      # first axis
- #      name = name_units,
- #      
- #      # second axis 
- #      sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
- #    )  +
- #    theme(axis.title.y.right = element_text(color = "#9A9391"),
- #          axis.title.y = element_text(color = "#d14411"),
- #          axis.line.y.left = element_line(color = "#d14411")) 
+  mindate <- min(df_subset.2$Date)
+  maxdate <- max(df_subset.2$Date)
+  
+  coef <- mean(as.numeric(df_subset.2$mu_mol, na.rm = TRUE) / mean(Gl4Dis$discharge_rate, na.rm = TRUE))
+
+  p21 <- ggplot() +
+    geom_line(df_subset, mapping = aes(Date, mu_mol, color = Var)) +
+    geom_line(Gl4Dis,
+              mapping = aes(date, discharge_rate / coef),
+              color = "#9A9391") +
+    theme_light() +
+    scale_x_date(limits = c(mindate, maxdate)) +
+    #scale_y_log10() +
+    scale_y_log10(# first axis
+      name = "Concentration" ~ (mu ~ mol ~ L ^ -1),
+      
+      # second axis
+      sec.axis = sec_axis( ~ . / coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1)))
+
+    
 
 ```
 
@@ -105,29 +134,46 @@ p17 <- wateryearplot(lochvale,lochvale$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s
 These data are from the stream outlet of Green Lake 4. The winter chemistry data is collected beneath the ice in the lake. During 2014, the discharge data deviates from the other streams and the typical seasonal pattern. The lead technician for Niwot Ridge LTER reported nothing obvious on the ground that would casue an error. So it is possible that the discharge data from 2014 are either real or there could have been some sort of sensor issue. 
 
 ### Hydrochemographs!!!
-Stoichiometric timeseries if we decide we want to use any of these
+Stoichiometric timeseries - if we decide we want to use any of these
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p2
+p13
 ```
 
-Here is the nitrate hydrochemograph. Note the units are the worst possible units anyone could provide with data. 
+Here is a figure with TDN and TDP and streamflow...
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+p21
+```
+
+Here are the nitrate, TDN, and TDP hydrochemographs. Note the nitrate units are the worst possible units anyone could provide with data. 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p4
+p5
+p8
 ```
+
+A few more Green Lake 4 outlet water year figures. - Note: I just used the "loess" function in ggplot to make that red trend line.
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+p14
+p15
+p16
+p17
+```
+
 
 ## Loch Vale 
 These data are from the stream outlet of Loch Vale and were downloaded from USGS using the dataReterieval package in R (De Cicco et al., 2021). 
 
 ### More beautiful hydrochemographs!!!
-We have good nitrate data to create hydrochemographs from this site. Here is the nitrate hydrochemograph. Phosphate data were often below detection limit :( 
+We have good nitrate data to create hydrochemographs from this site. Here is the nitrate hydrochemograph. 
+
+Phosphate data were often below detection limit :(
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p11
+p18
+p19
 ```
 
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-
-```
 
 
 ## Data Sources
