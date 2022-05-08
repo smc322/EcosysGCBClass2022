@@ -6,20 +6,28 @@ output: html_document
 ---
 
 ```{r setup, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
-source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
+#hydrochemographs :) 
+
+#call function
+source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
 
 library(tidyverse)
+library(lubridate)
+
+
 ### potential hydrochemographs from Green Lake 4 ###
-source("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Call_Data.R") 
+# call data and format
+source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/Call_Data.R") 
 Gl4stoich <- Gl4Chem |>
  # mutate(tntp = as.numeric(TN)/as.numeric(TP)) |>
   mutate(tdn.tdp = as.numeric(TDN)/as.numeric(TDP),
-         don.dop = as.numeric(DON)/as.numeric(DOP))
+         don.dop = as.numeric(DON)/as.numeric(DOP)) |>
+  filter(year!= 2014)
 
 p1 <- chemo_hydrograph(Gl4stoich, Gl4stoich$don.dop, "DON:DOP (molar ratio)", Gl4Dis)
-p2 <- chemo_hydrograph(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP (molar ratio)", Gl4Dis)
+p2 <- chemo_hydrograph(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP (molar ratio)", Gl4Dis) # use
 p3 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NH4., "Ammonium"~(mu~eq~L^-1), Gl4Dis)
-p4 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NO3., "Nitrate"~(mu~eq~L^-1), Gl4Dis)
+p4 <- chemo_hydrograph(Gl4Chem, Gl4Chem$NO3., "Nitrate"~(mu~eq~L^-1), Gl4Dis) # use
 p5 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDN, "Total Dissolved N"~(mu~mol~L^-1), Gl4Dis)
 p6 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DON, "Dissolved Organic N"~(mu~mol~L^-1), Gl4Dis)
 p7 <- chemo_hydrograph(Gl4Chem, Gl4Chem$IN, "Inorganic N"~(mu~eq~L^-1), Gl4Dis)
@@ -27,13 +35,69 @@ p8 <- chemo_hydrograph(Gl4Chem, Gl4Chem$TDP, "Total Dissolved P"~(mu~mol~L^-1), 
 p9 <- chemo_hydrograph(Gl4Chem, Gl4Chem$DOP, "Dissolved Organic P"~(mu~mol~L^-1), Gl4Dis)
 
 ### potential hydrochemogrpahs from Loch Vale outlet ###
-lochvale <- read.csv("C:/Users/lrock1/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
-  select(-X, -X.1) |>
-  mutate(date = as.Date(Date))
+# call data and format
+lochvale <- read.csv("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
+ select(-X, -X.1) |>
+  mutate(Date = as.Date(Date)) |>
+  rename(date = Date)  |>
+  filter(year(date) > 1995)
 
 p10 <- chemo_hydrograph(lochvale, lochvale$no3.po4, "NO3:PO4 (molar ratio)", lochvale)
-p11 <- chemo_hydrograph(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~L~L^-1), lochvale)
-p12 <- chemo_hydrograph(lochvale, lochvale$Phosphate_mgl, "Phosphate"~(mg~L~L^-1), lochvale)
+p11 <- chemo_hydrograph(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~~L^-1), lochvale) # use
+p12 <- chemo_hydrograph(lochvale, lochvale$Phosphate_mgl, "Phosphate"~(mg~~L^-1), lochvale)
+
+```
+
+
+```{r setup, echo = FALSE, warning= FALSE, message = FALSE, include=FALSE}
+
+# water year graphs
+source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
+
+### Green Lake 4 ###
+p13 <- wateryearplot(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP (molar ratio)")
+p14 <- wateryearplot(Gl4Dis, Gl4Dis$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+p15 <- wateryearplot(Gl4stoich, Gl4stoich$NO3., "Nitrate"~(mu~eq~L^-1))
+
+### Loch Vale ###
+p16 <- wateryearplot(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~L~L^-1))
+p17 <- wateryearplot(lochvale,lochvale$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+
+```
+
+
+```{r}
+# Make a graph of Green Lake 4 TDN and TDP data 
+# modifying code from chemo_hydrograph function
+ 
+ # chemData.1 <- Gl4Chem |>
+ #    mutate(chemVar = as.numeric(TDN)) |>
+ #    filter(!is.na(chemVar))|>
+ #    filter(chemVar != Inf)
+ #  
+ #  
+ #  mindate <- min(chemData.1$date)
+ #  maxdate <- max(chemData.1$date)
+ #  
+ #  coef <- mean(as.numeric(chemData.1$chemVar), na.rm = TRUE) / mean(disData$discharge_rate, na.rm = TRUE)
+ #  
+ #  
+ #  ggplot() +
+ #    geom_line(disData, mapping = aes(date, discharge_rate * coef), color = "#9A9391") +
+ #    geom_line(chemData.1, mapping = aes(date, chemVar), color = "#d14411") +
+ #    theme_light() +
+ #    scale_x_date(limits = c(mindate, maxdate)) +
+ #    labs(x = "") +
+ #    scale_y_continuous(
+ #      # first axis
+ #      name = name_units,
+ #      
+ #      # second axis 
+ #      sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+ #    )  +
+ #    theme(axis.title.y.right = element_text(color = "#9A9391"),
+ #          axis.title.y = element_text(color = "#d14411"),
+ #          axis.line.y.left = element_line(color = "#d14411")) 
 
 ```
 
@@ -43,11 +107,10 @@ These data are from the stream outlet of Green Lake 4. The winter chemistry data
 ### Hydrochemographs!!!
 Stoichiometric timeseries if we decide we want to use any of these
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-p1
 p2
 ```
 
-We have good data to create hydrochemographs for ammonium, nitrate, TDN, DON, IN, TDP, and DOP. Here is the nitrate hydrochemograph. Note the units are the worst possible units anyone could provide with data. 
+Here is the nitrate hydrochemograph. Note the units are the worst possible units anyone could provide with data. 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p4
 ```
@@ -56,13 +119,14 @@ p4
 These data are from the stream outlet of Loch Vale and were downloaded from USGS using the dataReterieval package in R (De Cicco et al., 2021). 
 
 ### More beautiful hydrochemographs!!!
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-p10
-```
-
-We have good nitrate and phosphate data to create hydrochemographs from this site. Here is the nitrate hydrochemograph. Note the units are mg/L.
+We have good nitrate data to create hydrochemographs from this site. Here is the nitrate hydrochemograph. Phosphate data were often below detection limit :( 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 p11
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
 ```
 
 
