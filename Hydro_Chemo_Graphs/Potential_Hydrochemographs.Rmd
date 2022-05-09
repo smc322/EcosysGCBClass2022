@@ -56,7 +56,8 @@ source("C:/Users/linne/Downloads/PhD_Code/EcosysGCBClass2022/Hydro_Chemo_Graphs/
 
 ### Green Lake 4 ###
 
-p13.inset <- wateryearplot(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP")
+p13.inset <- wateryearplot(Gl4stoich, Gl4stoich$tdn.tdp, "TDN:TDP") +
+  theme(legend.position = "none")
 #make another TDN:TDP, but limit the values because it is impossible to see the pattern. Make above an inset
 p13.outset <- wateryearplot(Gl4stoich |> filter(tdn.tdp < 2500), (Gl4stoich |> filter(tdn.tdp < 2500))$tdn.tdp, "TDN:TDP (molar ratio)")
 library(patchwork)

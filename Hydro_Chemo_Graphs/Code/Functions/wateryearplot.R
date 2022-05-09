@@ -16,9 +16,10 @@ wateryearplot <- function(chemData, chemVar, name_units) {
   chemData.2 <- addWaterYear(chemData.1)
   
   ggplot(chemData.2) +
-    geom_line(aes(CDate, chemVar, group = waterYear), color = "#9A9391") +
+    geom_line(aes(CDate, chemVar, group = waterYear, color = waterYear)) +
     geom_smooth(method = "loess", aes(CDate, chemVar), color = "red", se = FALSE) +
     theme_light() +
+    scale_color_viridis_c() +
     scale_x_date(date_labels = "%b %d") +
     labs(x = "") +
     scale_y_continuous(
