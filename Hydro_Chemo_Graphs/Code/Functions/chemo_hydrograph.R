@@ -18,7 +18,7 @@ chemo_hydrograph <- function(chemData, chemVar, name_units, disData) {
   
   ggplot() +
     geom_line(disData, mapping = aes(date, discharge_rate * coef), color = "#9A9391") +
-    geom_line(chemData.1, mapping = aes(date, chemVar), color = "#d14411") +
+    geom_point(chemData.1, mapping = aes(date, chemVar), color = "#d14411") +
     theme_light() +
     scale_x_date(limits = c(mindate, maxdate)) +
     labs(x = "") +
