@@ -2,7 +2,6 @@
 source("Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
 source("Hydro_Chemo_Graphs/Code/Functions/wateryearplot.R")
 source("Hydro_Chemo_Graphs/Code/Functions/cQ_graph.R")
-source("Hydro_Chemo_Graphs/Code/Functions/tsDecompose.R")
 
 library(tidyverse)
 library(lubridate)
@@ -76,10 +75,3 @@ Gl4Data_b <- addWaterYear(Gl4Data_a) # dataRetrieval fuction
 
 
 
-## timeseries decomposition 
-
-
-ratio <- tsDecompose(Gl4Data, Gl4Data$tdn.tdp, "TDN:TDP (molar ratio)", "TDN_TDP")
-tdn <- tsDecompose(Gl4Data, Gl4Data$TDN, "Total Dissolved N"~(mu*mol~L^-1), "TDN")
-tdp <- tsDecompose(Gl4Data, Gl4Data$TDP, "Total Dissolved P"~(mu*mol~L^-1), "TDP")
-streamflow <- tsDecompose(Gl4Data, Gl4Data$discharge_rate, "Streamflow" ~ (m^3~s^-1), "streamflow")
