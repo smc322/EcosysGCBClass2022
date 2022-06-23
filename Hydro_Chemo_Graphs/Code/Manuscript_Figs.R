@@ -5,6 +5,7 @@ source("Hydro_Chemo_Graphs/Code/Functions/cQ_graph.R")
 
 library(tidyverse)
 library(lubridate)
+library(colorblindr)
 
 
 
@@ -42,7 +43,7 @@ Gl4Data <- full_join(Gl4stoich, Gl4Dis_a) |>
 #### Some basic plots ####
 chemo_hydrograph(Gl4Data, Gl4Data$tdn.tdp, "TDN:TDP (molar ratio)", Gl4Data) +
   stat_smooth(aes(Gl4Data$date, Gl4Data$tdn.tdp)) +
-  ylim(0,5000)
+  ylim(0,3000)
 chemo_hydrograph(Gl4Data, Gl4Data$TDN, "Total Dissolved N"~(mu*mol~L^-1), Gl4Data) +
   stat_smooth(aes(Gl4Data$date, Gl4Data$TDN))
 chemo_hydrograph(Gl4Data, Gl4Data$TDP, "Total Dissolved P"~(mu*mol~L^-1), Gl4Data) +
@@ -54,7 +55,7 @@ wateryearplot(Gl4Data, Gl4Data$discharge_rate, "Streamflow" ~ (m^3~s^-1))
 wateryearplot(Gl4Data, Gl4Data$TDN, "Total Dissolved N"~(mu*mol~L^-1))
 wateryearplot(Gl4Data, Gl4Data$TDP, "Total Dissolved P"~(mu*mol~L^-1))
 wateryearplot(Gl4Data, Gl4Data$NO3., "Nitrate"~(mu*eq~L^-1)) 
-ggsave("Hydro_Chemo_Graphs/Plots/test.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)
+
 
 
 #### make a nice figure?####
@@ -83,7 +84,7 @@ p.inset <- ggplot(Gl4Data_b |> filter(!is.na(tdn.tdp))) +
   theme(legend.position = "none",
         axis.text = element_text(size = 5))
 #make another TDN:TDP, but limit the values because it is impossible to see the pattern. Make above an inset
-p.limit <- ggplot(Gl4Data_b |> filter(!is.na(tdn.tdp), tdn.tdp < 2500)) +
+p.limit <- ggplot(Gl4Data_b |> filter(!is.na(tdn.tdp), tdn.tdp < 5000)) +
   geom_line(aes(CDate, tdn.tdp, group = waterYear, color = waterYear)) +
   geom_point(aes(CDate, tdn.tdp, group = waterYear, color = waterYear)) +
   stat_smooth(method = "loess", aes(CDate, tdn.tdp), color = "red4", se = FALSE) +
@@ -116,3 +117,154 @@ ggplot(Gl4Data_b |> filter(between(Date, mindate, maxdate))) +
   ) 
 
 ggsave("Hydro_Chemo_Graphs/Plots/streamflow_wY.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)
+
+
+
+#### Looking at some of the weird years ####
+
+## Find year with high discharge January - May 
+high_dis <- Gl4Dis_a |>
+  filter(month(date) %in% c(1,2,3,4,5))
+#(it is 2015)
+high_dis <- Gl4Data_b |> 
+  filter(waterYear == 2015,
+  between(Date, mindate, maxdate))
+
+coef <- mean(as.numeric(high_dis$tdn.tdp), na.rm = TRUE) / mean(high_dis$discharge_rate, na.rm = TRUE)
+
+ggplot(high_dis) +
+  geom_line(aes(CDate, discharge_rate * coef), color = '#336a98') +
+  geom_point(aes(CDate, discharge_rate * coef), color = '#336a98') +
+  geom_point(aes(CDate, tdn.tdp), color = 'red4')  +
+  geom_line(high_dis |> filter(!is.na(tdn.tdp)), mapping = aes(CDate, tdn.tdp), color = 'red4')  +
+  scale_x_date(date_labels = "%b %d") +
+  theme_light() +
+  labs(x = "", title = "Year 2015 - Abnormally high streamflow January-May") +
+  scale_y_continuous(
+    # first axis
+    name = "TDN:TDP (molar ratio)",
+    
+    # second axis 
+    sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+  )  +
+  theme(axis.title.y.right = element_text(color = "#336a98"),
+        axis.line.y.right = element_line(color = "#336a98"),
+        axis.title.y = element_text(color = "red4"),
+        axis.line.y.left = element_line(color = "red4")) 
+
+ggsave("Hydro_Chemo_Graphs/Plots/2015_plot.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
+
+
+
+
+## Check out years 2015-2020
+
+high_np <- Gl4Data_b |> 
+  filter(between(waterYear, 2015, 2020))
+
+coef <- mean(as.numeric(high_np$tdn.tdp), na.rm = TRUE) / mean(high_np$discharge_rate, na.rm = TRUE)
+
+ggplot(high_np) +
+  geom_line(aes(CDate, discharge_rate * coef, group = as.factor(waterYear)), color = "#9A9391") +
+  geom_point(aes(CDate, discharge_rate * coef, group = as.factor(waterYear)), color = "#9A9391") +
+  geom_point(aes(CDate, tdn.tdp, group = waterYear, color = as.factor(waterYear))) +
+  geom_line(high_np |> filter(!is.na(tdn.tdp)), mapping = aes(CDate, tdn.tdp, group = as.factor(waterYear), color = as.factor(waterYear))) +
+  scale_color_viridis_d("Water Year") +
+  scale_x_date(date_labels = "%b %d") +
+  theme_light() +
+  labs(x = "", title = "2015-2020") +
+  scale_y_continuous(
+    # first axis
+    name = "TDN:TDP (molar ratio)",
+    
+    # second axis 
+    sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+  ) # +
+  # theme(axis.title.y.right = element_text(color = "#336a98"),
+  #       axis.line.y.right = element_line(color = "#336a98"),
+  #       axis.title.y = element_text(color = "red4"),
+  #       axis.line.y.left = element_line(color = "red4")) 
+
+ggsave("Hydro_Chemo_Graphs/Plots/2015_2020_plot.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
+
+
+## Pinpoint year with high N:P ratio -- 2017
+high_np17 <- Gl4Data_b |> 
+  filter(waterYear == 2017)
+
+coef <- mean(as.numeric(high_np17$tdn.tdp), na.rm = TRUE) / mean(high_np17$discharge_rate, na.rm = TRUE)
+
+ggplot(high_np17) +
+  geom_line(aes(CDate, discharge_rate * coef), color = '#336a98') +
+  geom_point(aes(CDate, discharge_rate * coef), color = '#336a98') +
+  geom_point(aes(CDate, tdn.tdp), color = 'red4')  +
+  geom_line(high_np17 |> filter(!is.na(tdn.tdp)), mapping = aes(CDate, tdn.tdp), color = 'red4')  +
+  scale_x_date(date_labels = "%b %d") +
+  theme_light() +
+  labs(x = "", title = "Year 2017 - Abnormally high N:P") +
+  scale_y_continuous(
+    # first axis
+    name = "TDN:TDP (molar ratio)",
+    
+    # second axis 
+    sec.axis = sec_axis(~./coef, name = "Streamflow" ~ (m ^ 3 ~ s ^ -1))
+  )  +
+  theme(axis.title.y.right = element_text(color = "#336a98"),
+        axis.line.y.right = element_line(color = "#336a98"),
+        axis.title.y = element_text(color = "red4"),
+        axis.line.y.left = element_line(color = "red4")) 
+
+ggsave("Hydro_Chemo_Graphs/Plots/2017_plot.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
+
+
+#### Check out precipitation ###
+precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
+  mutate(date = as.Date(date)) |>
+  filter(between(date, mindate, maxdate))
+
+# ggplot(precip |> filter(year > 2015), aes(date, precip)) +
+#   geom_bar(stat = "identity") +
+#   #geom_point(precip |> filter(month(date) %in% c(1,2,3,4,5)), mapping = aes(date, precip), color = "#336a98") +
+#   theme_light() +
+#   ylim(0,40)  +
+#   geom_vline(xintercept = seq.Date(from = as.Date('1980-01-01'), to = as.Date('2020-01-01'),by = 'year'),
+#              linetype=2, alpha = 0.4) 
+
+
+ annual_precip <- precip |>
+   group_by(year) |>
+   mutate(annual = sum(precip)) |>
+   ungroup() |>
+   mutate(season = NA) |>
+   mutate(season = ifelse(between(month(date), 1, 3), "Jan-Mar",
+                          ifelse(between(month(date), 4,6), "April-June",
+                                 ifelse(between(month(date), 7,9), "July-Sep",
+                                                ifelse(between(month(date), 10,12), "Oct-Dec", season))))) |>
+   group_by(year, season) |>
+   mutate(seasonal_precip = sum(precip)) |>
+   select(year, season, seasonal_precip, annual) |>
+   distinct()
+ 
+ annual_precip$season = factor(annual_precip$season, levels = c("Jan-Mar", "April-June", "July-Sep", "Oct-Dec"))
+ 
+ ggplot(annual_precip, aes(year, seasonal_precip, fill = season)) +
+   geom_bar(stat = "identity") +
+   theme_light() +
+   scale_fill_manual("", values = palette_OkabeIto[1:4]) +
+   geom_hline(yintercept = mean(annual_precip$annual), linetype = "dashed") +
+   labs(x = "",
+        y = "Total Annual Precipitation (mm)") +
+   annotate('text', label = 'Long-term annual average', x = 2000, y = 1200, hjust = 0, size = 3.5)
+   
+ 
+ 
+ ggplot(annual_precip, aes(year, seasonal_precip, group = season, color = season)) +
+   geom_point() +
+   geom_smooth(method = "loess", se = FALSE) +
+   theme_light() +
+   scale_color_manual("", values = palette_OkabeIto[1:4]) +
+   #geom_hline(yintercept = mean(annual_precip$annual), linetype = "dashed") +
+   labs(x = "",
+        y = "Total Annual Precipitation (mm)") #+
+  # annotate('text', label = 'Long-term annual average', x = 2000, y = 1200, hjust = 0, size = 3.5)
+ 

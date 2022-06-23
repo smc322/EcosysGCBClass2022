@@ -3,6 +3,7 @@
 
 library(tidyverse)
 library(lubridate)
+library(dataRetrieval)
 source("Hydro_Chemo_Graphs/Code/Functions/tsDecompose.R")
 
 ## call data and format
@@ -36,4 +37,60 @@ ratio <- tsDecompose(Gl4Data, Gl4Data$tdn.tdp, "TDN:TDP (molar ratio)", "TDN_TDP
 tdn <- tsDecompose(Gl4Data, Gl4Data$TDN, "Total Dissolved N"~(mu*mol~L^-1), "TDN")
 tdp <- tsDecompose(Gl4Data, Gl4Data$TDP, "Total Dissolved P"~(mu*mol~L^-1), "TDP")
 streamflow <- tsDecompose(Gl4Data, Gl4Data$discharge_rate, "Streamflow" ~ (m^3~s^-1), "streamflow")
+no3 <- tsDecompose(Gl4Data, Gl4Data$NO3., "Nitrate"~(mu*eq~L^-1), "nitrate")
 
+
+## Let's look at seasonality of the ratio and streamflow
+### This doesn't really look like anything helpful
+# ratio1 <- ratio |>
+#   group_by(year(date), month(date)) |>
+#   mutate(ave_szn = mean(season)) |>
+#   ungroup() |>
+#   rename(Date = date) |># must be named "Date" to work with the dataRetrieval function
+#   #seq along dates starting with the beginning of your water year
+#   mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
+#                               "-", month(Date), "-", day(Date))))
+# 
+# ratio2 <- addWaterYear(ratio1) |>
+#   select(waterYear, CDate, ave_szn) |>
+#   mutate(CDate = floor_date(CDate, 'month')) |>
+#   distinct() 
+# 
+# 
+# ggplot(ratio2) +
+#   geom_line(aes(CDate, ave_szn, group = waterYear, color = waterYear)) +
+#   geom_point(aes(CDate, ave_szn, group = waterYear, color = waterYear)) +
+#   stat_smooth(method = "loess", aes(CDate, ave_szn), color = "red4", se = FALSE) +
+#   theme_light() +
+#   scale_color_viridis_c("Water Year") +
+#   scale_x_date(date_labels = "%b %d") +
+#   labs(x = "") +
+#   scale_y_continuous(
+#     name = "TDN:TDP (molar ratio)")
+# 
+# 
+# streamflow1 <- streamflow |>
+#   group_by(year(date), month(date)) |>
+#   mutate(ave_szn = mean(season)) |>
+#   ungroup() |>
+#   rename(Date = date) |># must be named "Date" to work with the dataRetrieval function
+#   #seq along dates starting with the beginning of your water year
+#   mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
+#                               "-", month(Date), "-", day(Date))))
+# 
+# streamflow2 <- addWaterYear(streamflow1) |>
+#   select(waterYear, CDate, ave_szn) |>
+#   mutate(CDate = floor_date(CDate, 'month')) |>
+#   distinct() 
+# 
+# 
+# ggplot(streamflow2) +
+#   geom_line(aes(CDate, ave_szn, group = waterYear, color = waterYear)) +
+#   geom_point(aes(CDate, ave_szn, group = waterYear, color = waterYear)) +
+#   stat_smooth(method = "loess", aes(CDate, ave_szn), color = "red4", se = FALSE) +
+#   theme_light() +
+#   scale_color_viridis_c("Water Year") +
+#   scale_x_date(date_labels = "%b %d") +
+#   labs(x = "") +
+#   scale_y_continuous(
+#     name = "Streamflow")
