@@ -6,7 +6,7 @@ source("Hydro_Chemo_Graphs/Code/Functions/cQ_graph.R")
 library(tidyverse)
 library(lubridate)
 library(colorblindr)
-
+library(patchwork)
 
 
 ## call data and format
@@ -24,7 +24,8 @@ Gl4stoich <- Gl4Chem |> #units for TDN, TDP are in umol/L
          #don.dop = as.numeric(DON)/as.numeric(DOP)) |>
   filter(!is.na(tdn.tdp),
          TDP > 0) |>
-  select(year, date, NO3., TDN, TDP, tdn.tdp) 
+  select(year, date, NO3., TDN, TDP, tdn.tdp) |>
+  filter(tdn.tdp < 9000) # remove that one crazy outlier
   
 
 ## filter discharge data
@@ -42,12 +43,14 @@ Gl4Data <- full_join(Gl4stoich, Gl4Dis_a) |>
 
 #### Some basic plots ####
 chemo_hydrograph(Gl4Data, Gl4Data$tdn.tdp, "TDN:TDP (molar ratio)", Gl4Data) +
-  stat_smooth(aes(Gl4Data$date, Gl4Data$tdn.tdp)) +
-  ylim(0,3000)
+  stat_smooth(aes(Gl4Data$date, Gl4Data$tdn.tdp))
+ggsave("Hydro_Chemo_Graphs/Plots/timeseriesnp.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
 chemo_hydrograph(Gl4Data, Gl4Data$TDN, "Total Dissolved N"~(mu*mol~L^-1), Gl4Data) +
   stat_smooth(aes(Gl4Data$date, Gl4Data$TDN))
+ggsave("Hydro_Chemo_Graphs/Plots/timeseriesN.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
 chemo_hydrograph(Gl4Data, Gl4Data$TDP, "Total Dissolved P"~(mu*mol~L^-1), Gl4Data) +
   stat_smooth(aes(Gl4Data$date, Gl4Data$TDP))
+ggsave("Hydro_Chemo_Graphs/Plots/timeseriesP.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
 chemo_hydrograph(Gl4Data, Gl4Data$NO3., "Nitrate"~(mu*eq~L^-1), Gl4Data) +
   stat_smooth(aes(Gl4Data$date, Gl4Data$NO3.))
 wateryearplot(Gl4Data, Gl4Data$tdn.tdp, "TDN:TDP")
@@ -95,7 +98,7 @@ p.limit <- ggplot(Gl4Data_b |> filter(!is.na(tdn.tdp), tdn.tdp < 5000)) +
   scale_y_continuous(
     name = "TDN:TDP (molar ratio)"
   ) 
-  
+
 p.limit + inset_element(p.inset,0,0.6,0.4,1)
 ggsave("Hydro_Chemo_Graphs/Plots/ratio_wY.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)
 
@@ -220,7 +223,7 @@ ggsave("Hydro_Chemo_Graphs/Plots/2017_plot.jpg", height = 4.5, width = 6.5, unit
 #### Check out precipitation ###
 precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
   mutate(date = as.Date(date)) |>
-  filter(between(date, mindate, maxdate))
+  filter(between(date, mindate, as.Date("2020-09-30")))
 
 # ggplot(precip |> filter(year > 2015), aes(date, precip)) +
 #   geom_bar(stat = "identity") +
@@ -255,16 +258,56 @@ precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
    labs(x = "",
         y = "Total Annual Precipitation (mm)") +
    annotate('text', label = 'Long-term annual average', x = 2000, y = 1200, hjust = 0, size = 3.5)
-   
+  
+ ggsave("Hydro_Chemo_Graphs/Plots/annual_precip.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
+ 
  
  
  ggplot(annual_precip, aes(year, seasonal_precip, group = season, color = season)) +
    geom_point() +
-   geom_smooth(method = "loess", se = FALSE) +
+   geom_smooth(method = "lm", se = FALSE) +
    theme_light() +
    scale_color_manual("", values = palette_OkabeIto[1:4]) +
-   #geom_hline(yintercept = mean(annual_precip$annual), linetype = "dashed") +
    labs(x = "",
-        y = "Total Annual Precipitation (mm)") #+
-  # annotate('text', label = 'Long-term annual average', x = 2000, y = 1200, hjust = 0, size = 3.5)
- 
+        y = "Seasonal Precipitation (mm)")  +
+   scale_y_log10()
+ggsave("Hydro_Chemo_Graphs/Plots/precip_seasonalchange_lm.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500) 
+
+ggplot(annual_precip, aes(year, seasonal_precip, group = season, color = season)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  theme_light() +
+  scale_color_manual("", values = palette_OkabeIto[1:4]) +
+  labs(x = "",
+       y = "Seasonal Precipitation (mm)") 
+ggsave("Hydro_Chemo_Graphs/Plots/precip_seasonalchange.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500) #loess  
+
+#testing the linear models if the precipitation change over the years is influenced by season?
+szn.m <- lm(seasonal_precip~year*season, annual_precip) 
+summary(szn.m) # only July-September change through the years is significant
+# library(visreg)
+# visreg(szn.m, xvar = "year", by = "season", annual_precip, overlay = TRUE)
+
+
+
+#### check out ice thickness ####
+ice <- read.csv("Hydro_Chemo_Graphs/Data/ice.csv") |>
+  mutate(date = as.Date(date)) |>
+  filter(between(date, mindate, as.Date("2020-09-30"))) |>
+  rename(Date = date)
+
+ice <- addWaterYear(ice) |>
+  #seq along dates starting with the beginning of your water year
+  mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
+                              "-", month(Date), "-", day(Date))))
+
+
+ggplot(ice, aes(CDate, thickness, group = waterYear, color = waterYear)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  scale_color_viridis_c() +
+  labs(x = "",
+       y = "Ice thickness (cm)") +
+  theme_light()
+
+

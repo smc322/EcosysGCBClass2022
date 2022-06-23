@@ -17,7 +17,8 @@ Gl4stoich <- Gl4Chem |> #units for TDN, TDP are in umol/L
   mutate(tdn.tdp = TDN/TDP) |>
   filter(!is.na(tdn.tdp),
          TDP > 0) |>
-  select(year, date, NO3., TDN, TDP, tdn.tdp) 
+  select(year, date, NO3., TDN, TDP, tdn.tdp) |>
+  filter(tdn.tdp < 9000) # remove that one crazy outlier
 
 
 ## filter discharge data
