@@ -8,7 +8,7 @@ library(ggpubr)
 tsDecompose <- function(df, variable, a_title, filename) {
   
   df1 <- df |>
-    mutate(var = variable)  |>
+    mutate(var = as.numeric(variable))  |>
     filter(!is.na(var))
   
   df2 <- df1 %>%

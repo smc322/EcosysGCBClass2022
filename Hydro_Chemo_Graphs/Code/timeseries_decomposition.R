@@ -41,6 +41,35 @@ streamflow <- tsDecompose(Gl4Data, Gl4Data$discharge_rate, "Streamflow" ~ (m^3~s
 no3 <- tsDecompose(Gl4Data, Gl4Data$NO3., "Nitrate"~(mu*eq~L^-1), "nitrate")
 
 
+#check out timeseries trends for some of the other variables in the dataset
+ph <- tsDecompose(Gl4Chem, Gl4Chem$pH, "pH", "pH")
+cond <- tsDecompose(Gl4Chem, Gl4Chem$cond, "Specific Conductivity"~(mu*S~cm^-1), "cond")
+NH4 <- tsDecompose(Gl4Chem, Gl4Chem$NH4., "Ammonium"~(mu*eq~L^-1), "NH4")
+ca <- tsDecompose(Gl4Chem, Gl4Chem$Ca.., "Calcium" ~(mu*eq~L^-1), "calcium")
+mg <- tsDecompose(Gl4Chem, Gl4Chem$Mg.., "Magnesium"~(mu*eq~L^-1), "mg")
+na <- tsDecompose(Gl4Chem, Gl4Chem$Na., "Sodium"~(mu*eq~L^-1), "na")
+k <- tsDecompose(Gl4Chem, Gl4Chem$K., "Potassium"~(mu*eq~L^-1), "k")
+cl <- tsDecompose(Gl4Chem, Gl4Chem$Cl., "Chloride"~(mu*eq~L^-1), "cl")
+So4 <- tsDecompose(Gl4Chem, Gl4Chem$SO4.., "Sulfate"~(mu*eq~L^-1), "so4")
+po4 <- tsDecompose(Gl4Chem, Gl4Chem$PO4.., "Phosphate"~(mu*eq~L^-1), "po4")
+si <- tsDecompose(Gl4Chem, Gl4Chem$Si, "Silica"~(mu*mol~L^-1), "mg")
+
+
+# Other forms of N and P from the dataset
+tn <- tsDecompose(Gl4Chem, Gl4Chem$TN, "Total N"~(mu*mol~L^-1), "TN")
+tp <- tsDecompose(Gl4Chem, Gl4Chem$TP, "Total P"~(mu*mol~L^-1), "TP")
+pn <- tsDecompose(Gl4Chem, Gl4Chem$PN, "Particulate N"~(mu*mol~L^-1), "PN")
+pp <- tsDecompose(Gl4Chem, Gl4Chem$PP, "Particulate P"~(mu*mol~L^-1), "PP")
+don <- tsDecompose(Gl4Chem, Gl4Chem$TN, "Dissolved Organic N"~(mu*mol~L^-1), "DON")
+dop <- tsDecompose(Gl4Chem, Gl4Chem$TP, "Dissolved Organic P"~(mu*mol~L^-1), "DOP")
+i_n <- tsDecompose(Gl4Chem, Gl4Chem$IN, "Inorganic N"~(mu*mol~L^-1), "IN")
+i_p <- tsDecompose(Gl4Chem, Gl4Chem$IP, "Inorganic P"~(mu*mol~L^-1), "IP")
+
+# Carbon
+doc <- tsDecompose(Gl4Chem, Gl4Chem$DOC, "Dissolved Organic Carbon"~(mg~L^-1), "DOC")
+toc <- tsDecompose(Gl4Chem, Gl4Chem$TOC, "Total Organic Carbon"~(mg~L^-1), "TOC")
+poc <- tsDecompose(Gl4Chem, Gl4Chem$POC, "Particulate Organic Carbon"~(mg~L^-1), "POC")
+
 ## Let's look at seasonality of the ratio and streamflow
 ### This doesn't really look like anything helpful
 # ratio1 <- ratio |>
