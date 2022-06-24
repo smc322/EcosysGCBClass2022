@@ -220,6 +220,8 @@ ggplot(high_np17) +
 ggsave("Hydro_Chemo_Graphs/Plots/2017_plot.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
 
 
+################################################################################
+
 #### Check out precipitation ###
 precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
   mutate(date = as.Date(date)) |>
@@ -290,6 +292,8 @@ summary(szn.m) # only July-September change through the years is significant
 
 
 
+################################################################################
+
 #### check out ice thickness ####
 ice <- read.csv("Hydro_Chemo_Graphs/Data/ice.csv") |>
   mutate(date = as.Date(date)) |>
@@ -309,5 +313,184 @@ ggplot(ice, aes(CDate, thickness, group = waterYear, color = waterYear)) +
   labs(x = "",
        y = "Ice thickness (cm)") +
   theme_light()
+
+
+################################################################################
+
+#### check out air temperatures ####
+temp <- read.csv("Hydro_Chemo_Graphs/Data/air_temp.csv") |>
+  mutate(date = as.Date(date)) |>
+  filter(between(date, mindate, as.Date("2020-09-30"))) |>
+  rename(Date = date) |>
+  mutate(airtemp_avg = as.numeric(airtemp_avg))
+
+temp <- addWaterYear(temp) |>
+  #seq along dates starting with the beginning of your water year
+  mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
+                              "-", month(Date), "-", day(Date))))
+
+
+ggplot() +
+  geom_point(temp, mapping = aes(CDate, airtemp_avg, group = waterYear), color = "grey70") +
+  geom_point(temp |> filter(waterYear == "2015"), mapping = aes(CDate, airtemp_avg), color = "red4") +
+  geom_smooth(temp |> filter(waterYear == "2015"), mapping = aes(CDate, airtemp_avg), color = "red4", se = FALSE) +
+  #geom_smooth(se = FALSE) +
+ # scale_color_viridis_c("Water Year") +
+  labs(x = "",
+       y = "Air Temperature"~degree*C) +
+  theme_light()  +
+  scale_x_date(date_labels = "%b %d")
+
+
+ggplot(temp, aes(Date, airtemp_avg)) +
+  geom_point(color = "grey60") +
+  geom_smooth(se = FALSE, color = "red4") +
+ # scale_color_viridis_c("Water Year") +
+  labs(x = "",
+       y = "Air Temperature"~degree*C) +
+  theme_light()
+
+ggsave("Hydro_Chemo_Graphs/Plots/air_temp.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500) 
+
+annual_temp <- temp |>
+  group_by(year(Date)) |>
+  mutate(annual = mean(airtemp_avg, na.rm = TRUE)) |>
+  ungroup() |>
+  mutate(season = NA) |>
+  mutate(season = ifelse(between(month(Date), 1, 3), "Jan-Mar",
+                         ifelse(between(month(Date), 4,6), "April-June",
+                                ifelse(between(month(Date), 7,9), "July-Sep",
+                                       ifelse(between(month(Date), 10,12), "Oct-Dec", season))))) |>
+  group_by(year(Date), season) |>
+  mutate(seasonal_temp = mean(airtemp_avg, na.rm = TRUE)) |>
+  ungroup() |>
+  mutate(year = year(Date)) |>
+  select(year, season, seasonal_temp, annual) |>
+  distinct()
+
+annual_temp$season = factor(annual_temp$season, levels = c("Jan-Mar", "April-June", "July-Sep", "Oct-Dec"))
+
+
+
+
+ggplot(annual_temp, aes(year, seasonal_temp, group = season, color = season)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_light() +
+  scale_color_manual("", values = palette_OkabeIto[1:4]) +
+  labs(x = "",
+       y = "Seasonal air temperature"~degree*C)
+#ggsave("Hydro_Chemo_Graphs/Plots/temp_seasonalchange_lm.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500) 
+
+ggplot(annual_temp, aes(year, seasonal_temp, group = season, color = season)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  theme_light() +
+  scale_color_manual("", values = palette_OkabeIto[1:4]) +
+  labs(x = "",
+       y = "Seasonal air temperature"~degree*C) 
+#ggsave("Hydro_Chemo_Graphs/Plots/temp_seasonalchange.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500) #loess  
+
+#testing the linear models if the temps change over the years is influenced by season?
+szn.m <- lm(seasonal_temp~year*season, annual_temp) 
+summary(szn.m) # only July-September change through the years is significant
+# library(visreg)
+# visreg(szn.m, xvar = "year", by = "season", annual_precip, overlay = TRUE)
+
+temp_szn <-tsDecompose(temp |> rename(date = Date), temp$airtemp_avg, "Air temperature"~degree*C, "temp")
+
+
+temp_szn <- temp |>
+  mutate(season = NA) |>
+  mutate(season = ifelse(between(month(Date), 1, 3), "Jan-Mar",
+                         ifelse(between(month(Date), 4,6), "April-June",
+                                ifelse(between(month(Date), 7,9), "July-Sep",
+                                       ifelse(between(month(Date), 10,12), "Oct-Dec", season)))))
+
+temp_szn$season = factor(temp_szn$season, levels = c("Jan-Mar", "April-June", "July-Sep", "Oct-Dec"))
+
+
+
+ggplot(temp_szn, aes(Date, airtemp_avg, color = season)) +
+  geom_point(color = "grey70") +
+  geom_smooth(se = FALSE, color = "red4") +
+  geom_smooth(mapping = aes(Date, as.numeric(airtemp_min)), se = FALSE) +
+  scale_color_manual("", values = palette_OkabeIto[1:4]) +
+  # scale_color_viridis_c("Water Year") +
+  labs(x = "",
+       y = "Air Temperature"~degree*C) +
+  theme_light() #+
+  #geom_hline(yintercept = mean((temp_szn |> filter(season == "Jan-Mar"))$airtemp_avg, na.rm = TRUE), linetype = "dashed")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Gl4Data_all <- Gl4Data |>
+  left_join(temp_szn  |>
+              rename(date = Date)) |>
+  filter(between(date, mindate, maxdate))
+
+
+ggplot(Gl4Data_all) +
+  geom_point(aes(airtemp_avg, TDP))
+
+
+
+Gl4Data_c <- Gl4Data  |>
+  mutate(season = NA) |>
+  mutate(season = ifelse(between(month(date), 1, 3), "Jan-Mar",
+                         ifelse(between(month(date), 4,6), "April-June",
+                                ifelse(between(month(date), 7,9), "July-Sep",
+                                       ifelse(between(month(date), 10,12), "Oct-Dec", season)))))
+
+Gl4Data_c$season = factor(Gl4Data_c$season, levels = c("Jan-Mar", "April-June", "July-Sep", "Oct-Dec"))
+
+  
+
+
+ggplot(Gl4Data_c) +
+  geom_boxplot(aes(season, TDN, fill = season)) +
+  theme_light() +
+  scale_fill_manual("", values = palette_OkabeIto[1:4]) +
+  labs(x = "",
+       y = "Total Dissolved N"~(mu*mol~L^-1))
+
+ggplot(Gl4Data_c) +
+  geom_boxplot(aes(season, TDP, fill = season)) +
+  theme_light() +
+  scale_fill_manual("", values = palette_OkabeIto[1:4]) +
+  labs(x = "",
+       y = "Total Dissolved P"~(mu*mol~L^-1))
+
+ggplot(Gl4Data_c) +
+  geom_boxplot(aes(season, tdn.tdp, fill = season)) +
+  theme_light() +
+  scale_fill_manual("", values = palette_OkabeIto[1:4]) +
+  labs(x = "",
+       y = "TDN:TDP molar ratio")
+
+
+
+
+seasonal_dat <- Gl4Data_all |>
+  group_by(season, year) |>
+  summarise(mean(discharge_rate, na.rm = TRUE),
+            mean(tdn.tdp, na.rm = TRUE),
+            mean(TDN, na.rm = TRUE),
+            mean(TDP, na.rm = TRUE))
+
+
+
 
 
