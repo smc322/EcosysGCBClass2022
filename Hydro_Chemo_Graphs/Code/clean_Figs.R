@@ -248,7 +248,8 @@ precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
    group_by(year, season) |>
    mutate(seasonal_precip = sum(precip)) |>
    select(year, season, seasonal_precip, annual) |>
-   distinct()
+   distinct() |>
+   mutate(percentage = (seasonal_precip/annual)*100)
  
  annual_precip$season = factor(annual_precip$season, levels = c("Jan-Mar", "April-June", "July-Sep", "Oct-Dec"))
  

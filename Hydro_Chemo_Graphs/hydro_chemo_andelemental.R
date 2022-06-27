@@ -97,7 +97,9 @@ Gl4Data_weekly <- Gl4Data |>
   mutate(date = CDate) |>
   rename(discharge_rate = ave_weekly_dis)
 
-chemo_hydrograph(Gl4Data_weekly, Gl4Data_weekly$ave_weekly_tdn.tdp, "TDN:TDP molar ratio", Gl4Data_weekly)
-chemo_hydrograph(Gl4Data_weekly, Gl4Data_weekly$ave_weekly_tdn, "Total Dissolved N"~(mu*mol~L^-1), Gl4Data_weekly)
-chemo_hydrograph(Gl4Data_weekly, Gl4Data_weekly$ave_weekly_tdp, "Total Dissolved P"~(mu*mol~L^-1), Gl4Data_weekly)
-
+chemo_hydrograph(Gl4Data_weekly, Gl4Data_weekly$ave_weekly_tdn.tdp, "TDN:TDP molar ratio", Gl4Data_weekly) +
+  stat_smooth(aes(Gl4Data_weekly$date, Gl4Data_weekly$ave_weekly_tdn.tdp), se = FALSE)
+chemo_hydrograph(Gl4Data_weekly, Gl4Data_weekly$ave_weekly_tdn, "Total Dissolved N"~(mu*mol~L^-1), Gl4Data_weekly)+
+  stat_smooth(aes(Gl4Data_weekly$date, Gl4Data_weekly$ave_weekly_tdn), se = FALSE)
+chemo_hydrograph(Gl4Data_weekly, Gl4Data_weekly$ave_weekly_tdp, "Total Dissolved P"~(mu*mol~L^-1), Gl4Data_weekly) +
+  stat_smooth(aes(Gl4Data_weekly$date, Gl4Data_weekly$ave_weekly_tdp), se = FALSE) 
