@@ -85,9 +85,25 @@ citation(package = "dataRetrieval")
 
 
 
+andrews <- andrews_discharge |>
+  select(Date, X_00060_00003) |>
+  group_by(Date) |>
+  summarise(Discharge_cms = mean(X_00060_00003)) |> # there were no overlapping observations in each date
+  ungroup() |> 
+  mutate(discharge_rate = ifelse(Discharge_cms < 0, 0, Discharge_cms)) # some negative values between 2009-01-30 through 2009-04-17, possibly from ice cover or low water? 
 
+andrewswq1 <- andrews_nitrate |>
+  select(site_no, sample_dt, parm_cd, result_va) |>
+  rename(Date = sample_dt) |>
+  group_by(site_no, Date, parm_cd) |>
+  summarise(result_va = mean(result_va)) |> # there are multiple observations per day 
+  ungroup() |>
+  pivot_wider(names_from = parm_cd, values_from = result_va) |>
+  rename(Nitrate_mgl = `00618`)
 
+andrews_fin <- left_join(andrewswq1, andrews)
 
+write.csv(andrews_fin, "Hydro_Chemo_Graphs/Data/USGS_andrewslochvale.csv")
 
 
 

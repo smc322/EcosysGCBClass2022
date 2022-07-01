@@ -9,7 +9,7 @@ tsDecompose <- function(df, variable, a_title, filename) {
   
   df1 <- df |>
     mutate(var = as.numeric(variable))  |>
-    filter(!is.na(var))
+    filter(!is.na(var)) 
   
   df2 <- df1 %>%
     as_tibble() %>%
@@ -32,7 +32,7 @@ tsDecompose <- function(df, variable, a_title, filename) {
   
   plot <- (obs) / (trend) / (szn) / (rem) +
     plot_annotation(title = a_title)
-  ggsave(paste("Hydro_Chemo_Graphs/Plots/tsDecompPlots/", filename, ".png", sep = ""), height = 12, width = 12, units = "in", dpi = 500)
+  ggsave(paste("Hydro_Chemo_Graphs/Plots/", filename, ".png", sep = ""), height = 12, width = 12, units = "in", dpi = 500)
   
   return(df2)
 }
