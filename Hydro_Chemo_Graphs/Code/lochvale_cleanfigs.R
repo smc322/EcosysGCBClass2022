@@ -27,7 +27,9 @@ lochvale <- read.csv("Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
 
 chemo_hydrograph(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~~L^-1), lochvale)+
   geom_vline(xintercept = seq.Date(from = as.Date('1980-01-01'), to = as.Date('2021-01-01'),by = 'year'),
-             linetype=2, alpha = 0.4, color = "grey70") 
+             linetype=2, alpha = 0.4, color = "grey70") +
+  labs(caption = "Figure X. Nitrate concentration shown in the red line, and streamflow shown in the grey line for the Loch Vale outlet for years 1985-2019.") +
+  theme(plot.caption = element_text(size = 10, hjust = 0))
 ggsave("Hydro_Chemo_Graphs/Plots/Loch_Vale_Plots/HCG_lochvale_nitrate.jpg", width = 6.5, height = 4.5, dpi=500)
 
 
