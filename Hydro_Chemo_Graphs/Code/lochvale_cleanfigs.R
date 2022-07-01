@@ -65,7 +65,6 @@ ggsave("Hydro_Chemo_Graphs/Plots/Loch_Vale_Plots/HCG_average_weekly.jpg", width 
 p.1 <- wateryearplot(lochvale, lochvale$Nitrate_mgl, "Nitrate"~(mg~L~L^-1))
 p.2 <- wateryearplot(lochvale,lochvale$discharge_rate, "Streamflow" ~ (m ^ 3 ~ s ^ -1))
 
-
 p.1/p.2
 ggsave("Hydro_Chemo_Graphs/Plots/Loch_Vale_Plots/wateryear.jpg", width = 6.5, height = 8.5, dpi=500)
 
