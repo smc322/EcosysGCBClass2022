@@ -223,7 +223,7 @@ ggsave("Hydro_Chemo_Graphs/Plots/2017_plot.jpg", height = 4.5, width = 6.5, unit
 ################################################################################
 
 #### Check out precipitation ###
-precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
+precip <- read.csv("Hydro_Chemo_Graphs/Data/precip_lochvale.csv") |>
   mutate(date = as.Date(date)) |>
   filter(between(date, mindate, as.Date("2020-09-30")))
 
@@ -255,14 +255,14 @@ precip <- read.csv("Hydro_Chemo_Graphs/Data/precip.csv") |>
  
  ggplot(annual_precip, aes(year, seasonal_precip, fill = season)) +
    geom_bar(stat = "identity") +
-   theme_light() +
+   theme_minimal() +
    scale_fill_manual("", values = palette_OkabeIto[1:4]) +
    geom_hline(yintercept = mean(annual_precip$annual), linetype = "dashed") +
    labs(x = "",
         y = "Total Annual Precipitation (mm)") +
    annotate('text', label = 'Long-term annual average', x = 2000, y = 1200, hjust = 0, size = 3.5)
   
- ggsave("Hydro_Chemo_Graphs/Plots/annual_precip.jpg", height = 4.5, width = 6.5, units = "in", dpi = 500)  
+ ggsave("Hydro_Chemo_Graphs/Plots/Loch_Vale_Plots/annual_precip.png", height = 4.5, width = 6.5, units = "in", dpi = 500)  
  
  
  
