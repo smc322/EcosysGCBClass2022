@@ -1,6 +1,7 @@
 library(tidyverse)
 library(lubridate)
 library(dataRetrieval)
+library(scales)
 
 
 # Loch Vale streamflow and nutreint data
@@ -60,7 +61,8 @@ collected in 2000-2019.") +
           axis.title.y.right = element_text(color = "#336a98"),
           axis.title.y = element_text(color = "red4"),
           #axis.line.y.left = element_line(color = "red4"),
-          legend.title = element_blank())
+          legend.title = element_blank()) +
+    scale_x_date(labels = date_format('%b'))
 
 
 
