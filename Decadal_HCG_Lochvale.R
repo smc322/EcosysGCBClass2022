@@ -3,12 +3,12 @@ library(lubridate)
 library(dataRetrieval)
 
 
-# Loch Vale
+# Loch Vale streamflow and nutreint data
 lochvale <- read.csv("Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
   select(-X, -X.1) |>
   mutate(Date = as.Date(Date)) |>
   rename(date = Date) |>
-  filter(year(date) > 1984)
+  filter(year(date) > 1984) # only keep years when we had nutrient and streamflwo
 
 
 # Make HCG of weekly average values 
@@ -42,9 +42,12 @@ lochvale_weekly <- lochvale |>
   ggplot(lochvale_weekly |> filter(decade != "1")) +
     geom_line(aes(date, discharge_rate * coef, linetype = decade), color = "#336a98") +
     geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = "red4") +
-    theme_light() +
+    theme_classic() +
     #scale_x_date(limits = c(mindate, maxdate)) +
-    labs(x = "") +
+    labs(x = "",
+         caption = "Figure 3. Average weekly nitrate concentrations (red lines) and average weekly streamflow (blue lines). Data 
+represented by the solid lines were collected in 1990-1999 and data represented by thedotted lines were 
+collected in 2000-2019.") +
     scale_y_continuous(
       # first axis
       name = "Average Weekly Nitrate"~(mg~L^-1),
@@ -52,13 +55,15 @@ lochvale_weekly <- lochvale |>
       # second axis 
       sec.axis = sec_axis(~./coef, name = "Average Weekly Streamflow" ~ (m ^ 3 ~ s ^ -1))
     )  +
-    theme(axis.title.y.right = element_text(color = "#336a98"),
+    theme(plot.caption.position = "plot",
+          plot.caption = element_text(hjust = 0),
+          axis.title.y.right = element_text(color = "#336a98"),
           axis.title.y = element_text(color = "red4"),
           #axis.line.y.left = element_line(color = "red4"),
           legend.title = element_blank())
 
 
 
-ggsave("HCG_average_weekly_decadal.jpg", width = 6.5, height = 4.5, dpi=500)
+ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
 
 
