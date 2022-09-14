@@ -24,7 +24,8 @@ lochvale_weekly <- lochvale |>
                               "-", month(Date), "-", day(Date)))) |>
   mutate(decade = ifelse(year(date) <= 1990, 1, NA),
          decade = ifelse(between(year(date), 1990, 2000), "1990-1999", decade),
-         decade = ifelse(year(date) >= 2000, "2000-2019", decade)) |>
+         decade = ifelse(between(year(date), 2000, 2009), "2000-2009", decade),
+         decade = ifelse(between(year(date), 2010, 2019), "2010-2019", decade)) |>
   mutate(decade = as.factor(decade)) |>
   group_by(CDate, decade) |>
   mutate(ave_weekly_nitrate = mean(Nitrate_mgl, na.rm = TRUE),
@@ -46,9 +47,9 @@ lochvale_weekly <- lochvale |>
     theme_classic() +
     #scale_x_date(limits = c(mindate, maxdate)) +
     labs(x = "",
-         caption = "Figure 3. Average weekly nitrate concentrations (red lines) and average weekly streamflow (blue lines). Data 
-represented by the solid lines were collected in 1990-1999 and data represented by thedotted lines were 
-collected in 2000-2019.") +
+         caption = "Figure 3. Average weekly nitrate concentrations (red lines) and average weekly streamflow (blue lines) at the 
+Loch Vale outlet. Data represented by the dotted lines were collected in 1990-1999, data represented by the dashed 
+lines were collected between 2000-2009, and data represented by the solid lines were collected in 2010-2019.") +
     scale_y_continuous(
       # first axis
       name = "Average Weekly Nitrate"~(mg~L^-1),
@@ -56,6 +57,8 @@ collected in 2000-2019.") +
       # second axis 
       sec.axis = sec_axis(~./coef, name = "Average Weekly Streamflow" ~ (m ^ 3 ~ s ^ -1))
     )  +
+    scale_linetype_manual(values = c(3, 2, 1)) +
+    guides(linetype = guide_legend(override.aes = list(color = "black"))) +
     theme(plot.caption.position = "plot",
           plot.caption = element_text(hjust = 0),
           axis.title.y.right = element_text(color = "#336a98"),
