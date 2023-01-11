@@ -105,7 +105,7 @@ p2 <- ggplot(massload) +
   geom_line(aes(date, cum_sum, linetype = decade)) +
   #geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
   theme_classic() +
-  labs(x = '', y = 'Cumulative sum nitrage (Mg)') +
+  labs(x = '', y = 'Cumulative sum nitrate (Mg)') +
   guides(linetype = guide_legend(override.aes = list(color = "black"))) +
   theme(plot.caption.position = "plot",
         plot.caption = element_text(hjust = 0),
@@ -178,4 +178,5 @@ p4 <- ggplot() +
 
 (p1 |p2)/(p4|p3)
 ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
+
 
