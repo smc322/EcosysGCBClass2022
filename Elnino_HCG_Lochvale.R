@@ -21,7 +21,7 @@ hydro <- '#4D6BBC'
   # format data into weekly averages, per el nino/not, and organized by water year ####
 
   
-  lochvale_weekly <- lochvale |>
+  lochvale_weekly_enso <- lochvale |>
     mutate(YEAR = year(date)) |>
     left_join(enso) |>
     mutate(x = round((day(date)/5))*5,
@@ -33,11 +33,6 @@ hydro <- '#4D6BBC'
     mutate(Date = as.Date(date2)) |>
     mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
                                 "-", month(Date), "-", day(Date)))) |>
-    # mutate(decade = ifelse(year(date) <= 1990, 1, NA),
-    #        decade = ifelse(between(year(date), 1990, 2000), "1990-1999", decade),
-    #        decade = ifelse(between(year(date), 2000, 2009), "2000-2009", decade),
-    #        decade = ifelse(between(year(date), 2010, 2019), "2010-2019", decade)) |>
-   # mutate(decade = as.factor(decade)) |>
     mutate(mon = month(date)) |> #and add seasons to the dataframe
     mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
                               mon %in% c(1,2,3) ~ "Jan-Mar",
@@ -60,7 +55,7 @@ hydro <- '#4D6BBC'
   #coef <- mean(as.numeric(lochvale_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly$discharge_rate, na.rm = TRUE)
   coef <- 0.05
   
-  p1 <- ggplot(lochvale_weekly |> filter(!is.na(ENSO))) +
+  p1 <- ggplot(lochvale_weekly_enso |> filter(!is.na(ENSO))) +
     geom_line(aes(date, discharge_rate * coef, linetype = ENSO), color = hydro) +
     geom_line(aes(date, ave_weekly_nitrate, linetype = ENSO), color = nitr) +
     theme_classic() +
@@ -98,18 +93,18 @@ hydro <- '#4D6BBC'
   
   
   # cumulative sum figure ####
-  massload <- lochvale_weekly |> 
-    filter(decade != "1") |>
-    arrange(decade, date) |>
-    group_by(decade) |>
+  massload <- lochvale_weekly_enso |> 
+    filter(!is.na(ENSO)) |>
+    arrange(ENSO, date) |>
+    group_by(ENSO) |>
     mutate(timestep = as.numeric(difftime(date, lag(date)), units="secs")) |> #timestep in seconds
     mutate(massMg = (ave_weekly_nitrate * discharge_rate * timestep)/1000000) |>
     mutate(cum_sum = cumsum(ifelse(is.na(massMg), 0, massMg))) |>
     ungroup()
   
   p2 <- ggplot(massload) +
-    geom_line(aes(date, cum_sum, linetype = decade)) +
-    #geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
+    geom_line(aes(date, cum_sum, linetype = ENSO)) +
+    #geom_line(aes(date, ave_weekly_nitrate, linetype = ENSO), color = nitr) +
     theme_classic() +
     labs(x = '', y = 'Cumulative sum nitrate (Mg)') +
     guides(linetype = guide_legend(override.aes = list(color = "black"))) +
@@ -130,9 +125,9 @@ hydro <- '#4D6BBC'
   
   
   # cQ figure ####
-  slopes <- lochvale_weekly |>
-    filter(decade != "1") |>
-    group_by(decade, season) |>
+  slopes <- lochvale_weekly_enso |>
+    filter(!is.na(ENSO)) |>
+    group_by(ENSO, season) |>
     do({
       mod = lm(log10(ave_weekly_nitrate) ~ log10(discharge_rate), data = .)
       data.frame(Intercept = coef(mod)[1],
@@ -140,17 +135,20 @@ hydro <- '#4D6BBC'
     })
   
   
-  p3 <- ggplot(lochvale_weekly |> filter(decade != "1",
+  p3 <- ggplot(lochvale_weekly_enso |> filter(!is.na(ENSO),
                                          !is.na(log10(discharge_rate)),
                                          !is.na(log10(ave_weekly_nitrate))), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
-    geom_point(aes(shape = decade, color = season), size = 1) +
+    geom_point(aes(shape = ENSO, fill = season), alpha = 0.25) +
     scale_shape_manual('', values = c(21,22,24)) +
-    geom_smooth(method = "lm", se = FALSE, aes(color = season, linetype = decade), size =1) +
-    scale_linetype_manual('', values = c(3, 2, 1)) + 
+    geom_smooth(method = "lm", se = FALSE, aes(color = season, linetype = ENSO)) +
+    scale_linetype_manual('', values = c(3,2,1)) + 
     guides(linetype = guide_legend(override.aes = list(color = "black"))) +
+    scale_fill_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
+                      #                   values = palette_OkabeIto[1:4]) +
+                      values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
     scale_color_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
                        #                   values = palette_OkabeIto[1:4]) +
-                       values = c("#1DACE8", "#1C366B", "#F24D29", "#E5C4A1")) +
+                       values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
     theme_classic() +
     labs(y = 'log10 nitrate'~(mg~L^-1),
          x = 'log10 streamflow'~(m^3~s^-1))  +
@@ -158,7 +156,9 @@ hydro <- '#4D6BBC'
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
           axis.text = element_text(size = 8),
-          axis.title = element_text(size =8))
+          axis.title = element_text(size =8)) +
+    guides(fill = 'none') + 
+    theme(legend.position = 'none') 
   
   
   p4 <- ggplot() +
@@ -167,14 +167,15 @@ hydro <- '#4D6BBC'
     annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
     annotate("text", label = 'mobilization', x = 0.2, y = 0.2, size = 2,color = "black") +
     annotate("text", label = 'dilution', x = -0.2, y = 0.2, size = 2,color = "black") +
-    geom_jitter(slopes, mapping = aes(Slope, season, shape = decade, fill = season), 
-                width = 0, height = 0.2, size = 2.5, alpha = 0.8) +
+    geom_jitter(slopes, mapping = aes(Slope, season, shape = ENSO, fill = season, color = season), 
+                width = 0, height = 0.2, size = 2.5, alpha = 0.7) +
     scale_y_discrete(limits=rev) + # flip y axis order for continuity with other plots
     theme_classic() +
-    scale_fill_manual(values = c("#1DACE8", "#1C366B", "#F24D29", "#E5C4A1")) +
-    guides(fill = FALSE) + 
     scale_shape_manual('', values = c(21,22,24)) +
-    theme(legend.position = 'none') +
+    scale_fill_manual('', values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+    scale_color_manual('', values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+    # guides(fill = 'none') + 
+    #theme(legend.position = 'none') +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
@@ -182,8 +183,9 @@ hydro <- '#4D6BBC'
           axis.title = element_text(size =8))
   
   
-  (p1 |p2)/(p4|p3)
-  ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
+  
+  (p1|p2)/(p3|p4)
+  ggsave("HCG_average_weekly_ENSO.png", width = 6.5, height = 4.5, dpi=500)
   
   
   

@@ -134,17 +134,20 @@ slopes <- lochvale_weekly |>
   })
 
   
-p3 <- ggplot(lochvale_weekly |> filter(decade != "1",
-                                 !is.na(log10(discharge_rate)),
-                                 !is.na(log10(ave_weekly_nitrate))), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
-  geom_point(aes(shape = decade, color = season), size = 1) +
+p3 <- ggplot(lochvale_weekly |> filter(decade != '1',
+                                            !is.na(log10(discharge_rate)),
+                                            !is.na(log10(ave_weekly_nitrate))), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
+  geom_point(aes(shape = decade, fill = season), alpha = 0.25) +
   scale_shape_manual('', values = c(21,22,24)) +
-  geom_smooth(method = "lm", se = FALSE, aes(color = season, linetype = decade), size =1) +
-  scale_linetype_manual('', values = c(3, 2, 1)) + 
+  geom_smooth(method = "lm", se = FALSE, aes(color = season, linetype = decade)) +
+  scale_linetype_manual('', values = c(3,2,1)) + 
   guides(linetype = guide_legend(override.aes = list(color = "black"))) +
+  scale_fill_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
+                    #                   values = palette_OkabeIto[1:4]) +
+                    values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
   scale_color_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
-  #                   values = palette_OkabeIto[1:4]) +
-  values = c("#1DACE8", "#1C366B", "#F24D29", "#E5C4A1")) +
+                     #                   values = palette_OkabeIto[1:4]) +
+                     values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
   theme_classic() +
   labs(y = 'log10 nitrate'~(mg~L^-1),
        x = 'log10 streamflow'~(m^3~s^-1))  +
@@ -152,7 +155,9 @@ p3 <- ggplot(lochvale_weekly |> filter(decade != "1",
                                   hjust = 0.5),
         text = element_text(family = 'serif'),
         axis.text = element_text(size = 8),
-        axis.title = element_text(size =8))
+        axis.title = element_text(size =8)) +
+  guides(fill = 'none') + 
+  theme(legend.position = 'none') 
 
 
 p4 <- ggplot() +
@@ -161,14 +166,15 @@ p4 <- ggplot() +
   annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
   annotate("text", label = 'mobilization', x = 0.2, y = 0.2, size = 2,color = "black") +
   annotate("text", label = 'dilution', x = -0.2, y = 0.2, size = 2,color = "black") +
-  geom_jitter(slopes, mapping = aes(Slope, season, shape = decade, fill = season), 
-              width = 0, height = 0.2, size = 2.5, alpha = 0.8) +
+  geom_jitter(slopes, mapping = aes(Slope, season, shape = decade, fill = season, color = season), 
+              width = 0, height = 0.2, size = 2.5, alpha = 0.7) +
   scale_y_discrete(limits=rev) + # flip y axis order for continuity with other plots
   theme_classic() +
-  scale_fill_manual(values = c("#1DACE8", "#1C366B", "#F24D29", "#E5C4A1")) +
-  guides(fill = FALSE) + 
   scale_shape_manual('', values = c(21,22,24)) +
-  theme(legend.position = 'none') +
+  scale_fill_manual('', values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+  scale_color_manual('', values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+ # guides(fill = 'none') + 
+  #theme(legend.position = 'none') +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                   hjust = 0.5),
         text = element_text(family = 'serif'),
@@ -176,7 +182,8 @@ p4 <- ggplot() +
         axis.title = element_text(size =8))
 
 
-(p1 |p2)/(p4|p3)
+
+(p1 |p2)/(p3|p4)
 ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
 
 
