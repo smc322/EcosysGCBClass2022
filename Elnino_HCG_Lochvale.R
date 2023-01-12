@@ -184,7 +184,8 @@ hydro <- '#4D6BBC'
   
   
   
-  (p1|p2)/(p3|p4)
+  (p1|p2)/(p3|p4) +
+    plot_annotation(tag_levels = 'a', tag_suffix = ')')
   ggsave("HCG_average_weekly_ENSO.png", width = 6.5, height = 4.5, dpi=500)
   
   

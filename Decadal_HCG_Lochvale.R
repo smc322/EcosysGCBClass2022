@@ -101,6 +101,7 @@ massload <- lochvale_weekly |>
   mutate(cum_sum = cumsum(ifelse(is.na(massMg), 0, massMg))) |>
   ungroup()
 
+
 p2 <- ggplot(massload) +
   geom_line(aes(date, cum_sum, linetype = decade)) +
   #geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
@@ -183,7 +184,8 @@ p4 <- ggplot() +
 
 
 
-(p1 |p2)/(p3|p4)
+(p1 |p2)/(p3|p4) +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')')
 ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
 
 
