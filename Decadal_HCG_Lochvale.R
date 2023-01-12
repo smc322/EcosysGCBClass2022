@@ -12,7 +12,7 @@ lochvale <- read.csv("Hydro_Chemo_Graphs/Data/USGS_lochvaleoutlet.csv") |>
   select(-X, -X.1) |>
   mutate(Date = as.Date(Date)) |>
   rename(date = Date) |>
-  filter(year(date) > 1984) # only keep years when we had nutrient and streamflwo
+  filter(year(date) > 1984) # only keep years when we had nutrient and streamflow
 
 
 # format data into weekly averages, per decade and organized by water year ####
@@ -189,3 +189,149 @@ p4 <- ggplot() +
 ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
 
 
+
+
+# Take a look at the final decade, especially the mobilization in January-March and dilution October-December ####
+a <- ggplot() +
+  geom_line(lochvale |> 
+              filter(year(date)>=1990) |>
+              mutate(mon = month(date)) |> #and add seasons to the dataframe
+              mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
+                                        mon %in% c(1,2,3) ~ "Jan-Mar",
+                                        mon %in% c(4,5,6)  ~ "Apr-Jun",
+                                        mon %in% c(7,8,9) ~ "Jul-Sep")) |>
+              mutate(season = factor(season, levels = c('Oct-Dec','Jan-Mar','Apr-Jun','Jul-Sep'))), mapping = aes(date, nitrate_umol, color = season, group = 1)) +
+  geom_vline(xintercept= c(as.numeric(as.Date("2000-01-01")), as.numeric(as.Date('2010-01-01')))) +
+  theme_classic()
+
+
+b <- ggplot() +
+  geom_line(lochvale |> 
+              filter(year(date)>=1990) |>
+              mutate(mon = month(date)) |> #and add seasons to the dataframe
+              mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
+                                        mon %in% c(1,2,3) ~ "Jan-Mar",
+                                        mon %in% c(4,5,6)  ~ "Apr-Jun",
+                                        mon %in% c(7,8,9) ~ "Jul-Sep")) |>
+              mutate(season = factor(season, levels = c('Oct-Dec','Jan-Mar','Apr-Jun','Jul-Sep'))), mapping = aes(date, discharge_rate, color = season, group = 1)) +
+  geom_vline(xintercept= c(as.numeric(as.Date("2000-01-01")), as.numeric(as.Date('2010-01-01')))) +
+  theme_classic()
+
+
+
+
+
+ggplot(lochvale_weekly |> filter(decade == '2010-2019',
+                                 !is.na(log10(discharge_rate)),
+                                 !is.na(log10(ave_weekly_nitrate))), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
+  geom_point(aes(shape = decade, fill = season), alpha = 0.25) +
+  scale_shape_manual('', values = c(21,22,24)) +
+  geom_smooth(method = "lm", se = FALSE, aes(color = season, linetype = decade)) +
+  scale_linetype_manual('', values = c(3,2,1)) + 
+  guides(linetype = guide_legend(override.aes = list(color = "black"))) +
+  scale_fill_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
+                    #                   values = palette_OkabeIto[1:4]) +
+                    values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+  scale_color_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
+                     #                   values = palette_OkabeIto[1:4]) +
+                     values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+  theme_classic() +
+  labs(y = 'log10 nitrate'~(mg~L^-1),
+       x = 'log10 streamflow'~(m^3~s^-1))  +
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8)) +
+  guides(fill = 'none') + 
+  theme(legend.position = 'none') 
+
+
+c <- ggplot(lochvale_weekly |> filter(decade != '1',
+                                 season == 'Oct-Dec',
+                                 !is.na(log10(discharge_rate)),
+                                 !is.na(log10(ave_weekly_nitrate))), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
+  geom_point(aes(shape = decade, fill = date), alpha = 0.25, size = 3) +
+  scale_shape_manual('', values = c(21,22,24)) +
+  geom_smooth(method = "lm", se = FALSE, aes(color = decade, linetype = decade)) +
+  scale_linetype_manual('', values = c(3,2,1)) + 
+  guides(linetype = guide_legend(override.aes = list(color = "black"))) +
+  scale_fill_viridis_c(trans = 'date') +
+  scale_color_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
+                     #                   values = palette_OkabeIto[1:4]) +
+                     values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+  theme_classic() +
+  labs(y = 'log10 nitrate'~(mg~L^-1),
+       x = 'log10 streamflow'~(m^3~s^-1))  +
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8))
+
+
+d<- ggplot(lochvale_weekly |> filter(decade != '1',
+                                 season == 'Jan-Mar',
+                                 !is.na(log10(discharge_rate)),
+                                 !is.na(log10(ave_weekly_nitrate))), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
+  geom_point(aes(shape = decade, fill = date), alpha = 0.25, size = 3) +
+  scale_shape_manual('', values = c(21,22,24)) +
+  geom_smooth(method = "lm", se = FALSE, aes(color = decade, linetype = decade)) +
+  scale_linetype_manual('', values = c(3,2,1)) + 
+  guides(linetype = guide_legend(override.aes = list(color = "black"))) +
+  scale_fill_viridis_c(trans = 'date') +
+  scale_color_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
+                     #                   values = palette_OkabeIto[1:4]) +
+                     values = c("#8EA42E","#7EA8C4","#EFD15E","#93796B")) +
+  theme_classic() +
+  labs(y = 'log10 nitrate'~(mg~L^-1),
+       x = 'log10 streamflow'~(m^3~s^-1))  +
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8))
+
+
+library(ggpubr)
+
+e <- ggplot(lochvale_weekly |> filter(decade != '1',
+                                 season == 'Jan-Mar',
+                                 !is.na(log10(discharge_rate)),
+                                 !is.na(log10(ave_weekly_nitrate))), aes(decade, ave_weekly_nitrate)) +
+  geom_boxplot() +
+  labs(title = 'Jan-Mar (mobilization in late decade)') +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +
+  stat_compare_means(fontface='bold',label = 'p.signif',comparisons = list(c('1990-1999','2000-2009'), c('1990-1999','2010-2019'), c('2000-2009','2010-2019')))
+
+f <- ggplot(lochvale_weekly |> filter(decade != '1',
+                                 season == 'Jan-Mar',
+                                 !is.na(log10(discharge_rate)),
+                                 !is.na(log10(ave_weekly_nitrate))), aes(decade, discharge_rate)) +
+  geom_boxplot() +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +
+  stat_compare_means(fontface='bold',label = 'p.signif',comparisons = list(c('1990-1999','2000-2009'), c('1990-1999','2010-2019'), c('2000-2009','2010-2019')))
+
+g <- ggplot(lochvale_weekly |> filter(decade != '1',
+                                      season == 'Oct-Dec',
+                                      !is.na(log10(discharge_rate)),
+                                      !is.na(log10(ave_weekly_nitrate))), aes(decade, ave_weekly_nitrate)) +
+  geom_boxplot() +
+  labs(title = 'Oct-Dec (dilution in late decade)') +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +
+  stat_compare_means(fontface='bold',label = 'p.signif',comparisons = list(c('1990-1999','2000-2009'), c('1990-1999','2010-2019'), c('2000-2009','2010-2019')))
+
+h <- ggplot(lochvale_weekly |> filter(decade != '1',
+                                      season == 'Oct-Dec',
+                                      !is.na(log10(discharge_rate)),
+                                      !is.na(log10(ave_weekly_nitrate))), aes(decade, discharge_rate)) +
+  geom_boxplot() +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +
+  stat_compare_means(fontface='bold',label = 'p.signif',comparisons = list(c('1990-1999','2000-2009'), c('1990-1999','2010-2019'), c('2000-2009','2010-2019')))
+
+
+a/b
+
+c/d
+
+(e | g)/(f | h)
