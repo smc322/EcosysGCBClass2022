@@ -170,7 +170,7 @@ hydro <- '#4D6BBC'
     annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
     annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
     annotate("text", label = 'mobilization', x = 0.2, y = 0.2, size = 2,color = "black") +
-    annotate("text", label = 'dilution', x = -0.2, y = 0.2, size = 2,color = "black") +
+    annotate("text", label = 'dilution', x = -0.15, y = 0.2, size = 2,color = "black") +
     geom_jitter(slopes, mapping = aes(Slope, season, shape = ENSO, fill = season, color = season), 
                 width = 0, height = 0.2, size = 2.5, alpha = 0.7) +
     scale_y_discrete(limits=rev) + # flip y axis order for continuity with other plots
@@ -184,12 +184,13 @@ hydro <- '#4D6BBC'
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
           axis.text = element_text(size = 8),
-          axis.title = element_text(size =8))
+          axis.title = element_text(size =8),
+          axis.text.y = element_blank())
   
   
-layout = '
-AABB
-CCDD'
+  layout = '
+AB
+CD'
   
   
   p1+p2+p3+p4 +

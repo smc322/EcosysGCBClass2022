@@ -180,19 +180,20 @@ hydro <- '#4D6BBC'
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
           axis.text = element_text(size = 8),
-          axis.title = element_text(size =8))
+          axis.title = element_text(size =8),
+          axis.text.y = element_blank())
   
   
 layout = '
-AABB
-CCDD'
+AB
+CD'
 
 
 p1+p2+p3+p4 +
 plot_annotation(tag_levels = 'a', tag_suffix = ')') +
 plot_layout(guides = 'collect', design = layout)
 
-ggsave("HCG_average_weekly_decadal.png", width = 6.5, height = 4.5, dpi=500)
+ggsave("HCG_average_weekly_decadal.png", width = 7.5, height = 5.5, dpi=1200)
   
   
   
