@@ -172,7 +172,7 @@ hydro <- '#4D6BBC'
     annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
     annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
     annotate("text", label = 'mobilization', x = 0.2, y = 0.2, size = 2,color = "black") +
-    annotate("text", label = 'dilution', x = -0.15, y = 0.2, size = 2,color = "black") +
+    annotate("text", label = 'dilution', x = -0.2, y = 0.2, size = 2,color = "black") +
     geom_point(mapping = aes(Slope, season, shape = ENSO, fill = season, color = season),
                size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
     geom_errorbarh(mapping = aes(Slope, season, xmin=Slope-SE, xmax=Slope+SE, color = season, group = ENSO),
