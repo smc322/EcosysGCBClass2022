@@ -136,7 +136,9 @@ hydro <- '#4D6BBC'
       mod = lm(log10(ave_weekly_nitrate) ~ log10(discharge_rate), data = .)
       data.frame(Intercept = coef(mod)[1],
                  Slope = coef(mod)[2],
-                 SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2])) 
+                 SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2]),
+                 CI.up = confint(mod, 'log10(discharge_rate)', level=0.95)[2],
+                 CI.down = confint(mod, 'log10(discharge_rate)', level=0.95)[1]) 
     })
 
   
@@ -175,7 +177,9 @@ hydro <- '#4D6BBC'
     annotate("text", label = 'dilution', x = -0.2, y = 0.2, size = 2,color = "black") +
     geom_point(mapping = aes(Slope, season, shape = decade, fill = season, color = season),
                 size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
-    geom_errorbarh(mapping = aes(Slope, season, xmin=Slope-SE, xmax=Slope+SE, color = season, group =decade),
+    # geom_errorbarh(mapping = aes(Slope, season, xmin=Slope-SE, xmax=Slope+SE, color = season, group =decade),
+    #                height = 0.2, position=position_dodge(width=0.5)) +
+    geom_errorbarh(mapping = aes(Slope, season, xmin=CI.down, xmax=CI.up, color = season, group =decade),
                    height = 0.2, position=position_dodge(width=0.5)) +
     scale_y_discrete(limits=rev) + # flip y axis order for continuity with other plots
     theme_classic() +

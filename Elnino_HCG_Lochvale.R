@@ -136,7 +136,9 @@ hydro <- '#4D6BBC'
       mod = lm(log10(ave_weekly_nitrate) ~ log10(discharge_rate), data = .)
       data.frame(Intercept = coef(mod)[1],
                  Slope = coef(mod)[2],
-                 SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2])) 
+                 SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2]),
+                 CI.up = confint(mod, 'log10(discharge_rate)', level=0.95)[2],
+                 CI.down = confint(mod, 'log10(discharge_rate)', level=0.95)[1])  
     })
   
   
