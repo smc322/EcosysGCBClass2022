@@ -1,3 +1,3 @@
-# Ecosystem Ecology and Global Change grad course at the University of Wyoming
-# Spring 2022
-# Collaborative work by Sarah Collins, Dave Williams, Joshua Ajowele, Linnea Rock, Bryce Shoup & Matthew Tetrick
+# Watershed responses to climate-change driven disturbances in temperate montane ecosystems 
+
+### Linnea A. Rock, Bryce Shoup, Joshua A. Ajowele, Félix Brédoire, Isabella A. Oleksy, Matthew Tetrick, David G. Williams, Sarah M. Collins
