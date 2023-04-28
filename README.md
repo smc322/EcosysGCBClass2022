@@ -4,7 +4,7 @@ Authors: Linnea A. Rock, Bryce Shoup, Joshua A. Ajowele, Félix Brédoire, Isabe
 
 ## Folders:
 
-**Archive_Exploration:** Contains files and data from earlier data exploration.
+**Archive_Exploration:** Contains files and data from earlier data exploration not pertinent to manuscript.
 
 **Code:** Contains .R files to run analyses and make figure for main text and supplementary materials.
 
