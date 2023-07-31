@@ -207,5 +207,8 @@ plot_layout(guides = 'collect', design = layout)
 
 ggsave("Figures/HCG_average_weekly_decadal.png", width = 7.5, height = 5.5, dpi=1200)
   
-  
+
+
+ggplot(lochvale) +
+  geom_line(aes(date, discharge_rate))
   
