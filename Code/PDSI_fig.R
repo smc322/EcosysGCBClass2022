@@ -241,6 +241,7 @@ ggplot() +
   scale_shape_manual('', values=c(0)) +
   theme_classic() +
   labs(x='',y='Nitrate wet deposition ('~mg*L^-1*')')
+ggsave('Figures/wetNdep.png', width = 6.5, height = 4.5, dpi=1200)
   
 
 ## Try MCMC changepoint analysis for nadp ####
