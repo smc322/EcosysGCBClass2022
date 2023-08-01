@@ -36,43 +36,76 @@ ggplot(pdsi_yearly) +
   theme_classic()
 
 ## try segmented regression/breakpoint analysis ####
-library(segmented)
-lm.1 <- lm(pdsi~fakeDate, pdsi_long)
+# library(segmented)
+# lm.1 <- lm(pdsi~fakeDate, pdsi_long)
+# 
+# breakpoint <- segmented(lm.1, seg.Z = ~fakeDate,
+#                         psi = list(fakeDate = c(as.Date('2000-01-01'), as.Date('2010-01-01'))))
+# summary(breakpoint)
+# # get breakpoints:
+# breakpoint$psi
+# 
+# as.Date(13312.82)
+# 
+# as.Date(14518.00)
+# 
+# ### try it with annual data to see how that compares ####
+# lm.2 <- lm(PDSI~Year, pdsi_yearly)
+# 
+# breakpoint <- segmented(lm.2, seg.Z = ~Year,
+#                         psi = list(Year = c(2000, 2010)))
+# summary(breakpoint)
+# # get breakpoints:
+# breakpoint$psi
+# #1998 and 2000 - weird
+# 
+# # try again with psi = NA to see how that compares
+# 
+# breakpoint <- segmented(lm.2, seg.Z = ~Year,
+#                         psi = NA)
+# summary(breakpoint)
+# # get breakpoints:
+# breakpoint$psi
+# # no points -- when I did this with all data, there were 10 breakpoints
 
-breakpoint <- segmented(lm.1, seg.Z = ~fakeDate,
-                        psi = list(fakeDate = c(as.Date('2000-01-01'), as.Date('2010-01-01'))))
-summary(breakpoint)
-# get breakpoints:
-breakpoint$psi
+# Try MCMC changepoint analysis ####
+# https://lindeloev.github.io/mcp/articles/packages.html
+library(mcp)
+model = list(pdsi~1, 1~1, 1~1)  # three intercept-only segments
+fit_mcp = mcp(model, data = pdsi_long, par_x = "Year")
+summary(fit_mcp)
+# Breaks at 1999 and 2006!!!!
 
-as.Date(13312.82)
 
-as.Date(14518.00)
 
-### try it with annual data to see how that compares ####
-lm.2 <- lm(PDSI~Year, pdsi_yearly)
 
-breakpoint <- segmented(lm.2, seg.Z = ~Year,
-                        psi = list(Year = c(2000, 2010)))
-summary(breakpoint)
-# get breakpoints:
-breakpoint$psi
-#1998 and 2000 - weird
+library(patchwork)
+plot(fit_mcp) + plot_pars(fit_mcp, pars = c("cp_1", "cp_2"), type = "dens_overlay")
 
-# try again with psi = NA to see how that compares
+ggsave("Figures/breakpoint_MCMCfit.png", width = 7.5, height = 5.5, dpi=1200)
 
-breakpoint <- segmented(lm.2, seg.Z = ~Year,
-                        psi = NA)
-summary(breakpoint)
-# get breakpoints:
-breakpoint$psi
-# no points -- when I did this with all data, there were 10 breakpoints
+
+ggplot(pdsi_long) +
+  geom_line(aes(fakeDate,pdsi)) +
+  geom_hline(yintercept = 0)  + 
+  labs(x = '', y = 'Palmer Drought Severity Index') +
+  theme_classic() +
+  geom_vline(xintercept = as.numeric(ymd("2000-01-01")), color = 'red4') +
+  geom_vline(xintercept = as.numeric(ymd("2007-01-01")), color = 'red4')
+ggsave("Figures/PDSI_breakpoints.png", width = 6.5, height = 4.5, dpi=1200)
+
+
 
 # Precip ####
 p <- read.csv('Data/LochValeClimate_IMERG_07312023/totalprecip_mm_monthly.csv', skip=7) |>
   rename(date=1,
          precip=2) |>
   mutate(date=as.Date(date))
+
+
+
+
+
 
 # total monthy precip
 ggplot(p, aes(date, precip)) +

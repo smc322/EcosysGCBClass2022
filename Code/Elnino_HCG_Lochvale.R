@@ -153,10 +153,10 @@ hydro <- '#4D6BBC'
     guides(linetype = guide_legend(override.aes = list(color = "black"))) +
     scale_fill_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
                       #                   values = palette_OkabeIto[1:4]) +
-                      values = c("#7EA8C4","#EFD15E","#8EA42E")) +
+                      values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     scale_color_manual('',#labels = c("Jan-Mar", "Apr-Jun", "Jul-Sep","Oct-Dec"),
                        #                   values = palette_OkabeIto[1:4]) +
-                       values = c("#7EA8C4","#EFD15E","#8EA42E")) +
+                       values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     theme_classic() +
     labs(y = 'log10 nitrate'~(mg~L^-1),
          x = 'log10 streamflow'~(m^3~s^-1))  +
@@ -182,8 +182,8 @@ hydro <- '#4D6BBC'
     scale_y_discrete(limits=rev) + # flip y axis order for continuity with other plots
     theme_classic() +
     scale_shape_manual('', values = c(21,22,24)) +
-    scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#8EA42E")) +
-    scale_color_manual('', values = c("#7EA8C4","#EFD15E","#8EA42E")) +
+    scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+    scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     # guides(fill = 'none') + 
     #theme(legend.position = 'none') +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),

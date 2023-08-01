@@ -28,9 +28,10 @@ hydro <- '#4D6BBC'
     mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
                                 "-", month(Date), "-", day(Date)))) |>
     mutate(decade = ifelse(year(date) <= 1990, 1, NA),
+           # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
            decade = ifelse(between(year(date), 1990, 2000), "1990-1999", decade),
-           decade = ifelse(between(year(date), 2000, 2009), "2000-2009", decade),
-           decade = ifelse(between(year(date), 2010, 2019), "2010-2019", decade)) |>
+           decade = ifelse(between(year(date), 2000, 2006), "2000-2006 (Drought)", decade),
+           decade = ifelse(between(year(date), 2007, 2019), "2007-2019", decade)) |>
     mutate(decade = as.factor(decade)) |>
     mutate(mon = month(date)) |> #and add seasons to the dataframe
     # mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
@@ -150,8 +151,8 @@ hydro <- '#4D6BBC'
     geom_smooth(method = "lm", se = FALSE, aes(color = season, linetype = decade)) +
     scale_linetype_manual('', values = c(3,2,1)) + 
     guides(linetype = guide_legend(override.aes = list(color = "black"))) +
-    scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#8EA42E")) +
-    scale_color_manual('',values = c("#7EA8C4","#EFD15E","#8EA42E")) +
+    scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+    scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     theme_classic() +
     labs(y = 'log10 nitrate'~(mg~L^-1),
          x = 'log10 streamflow'~(m^3~s^-1))  +
@@ -184,8 +185,8 @@ hydro <- '#4D6BBC'
     scale_y_discrete(limits=rev) + # flip y axis order for continuity with other plots
     theme_classic() +
     scale_shape_manual('', values = c(21,22,24)) +
-    scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#8EA42E")) +
-    scale_color_manual('', values = c("#7EA8C4","#EFD15E","#8EA42E")) +
+    scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+    scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     # guides(fill = 'none') + 
     #theme(legend.position = 'none') +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
@@ -205,10 +206,8 @@ p1+p2+p3+p4 +
 plot_annotation(tag_levels = 'a', tag_suffix = ')') +
 plot_layout(guides = 'collect', design = layout)
 
-ggsave("Figures/HCG_average_weekly_decadal.png", width = 7.5, height = 5.5, dpi=1200)
+ggsave("Figures/HCG_average_weekly_BREAKPOINT.png", width = 7.5, height = 5.5, dpi=1200)
   
 
 
-ggplot(lochvale) +
-  geom_line(aes(date, discharge_rate))
   
