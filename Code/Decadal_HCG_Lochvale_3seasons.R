@@ -29,9 +29,9 @@ hydro <- '#4D6BBC'
                                 "-", month(Date), "-", day(Date)))) |>
     mutate(decade = ifelse(year(date) <= 1990, 1, NA),
            # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
-           decade = ifelse(between(year(date), 1990, 2000), "1990-1999", decade),
-           decade = ifelse(between(year(date), 2000, 2006), "2000-2006 (Drought)", decade),
-           decade = ifelse(between(year(date), 2007, 2019), "2007-2019", decade)) |>
+           decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),
+           decade = ifelse(between(year(date), 2000, 2006), "2001-2007 (Drought)", decade),
+           decade = ifelse(between(year(date), 2007, 2019), "2008-2019", decade)) |>
     mutate(decade = as.factor(decade)) |>
     mutate(mon = month(date)) |> #and add seasons to the dataframe
     # mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",

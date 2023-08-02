@@ -101,7 +101,8 @@ p <- read.csv('Data/LochValeClimate_IMERG_07312023/totalprecip_mm_monthly.csv', 
   rename(date=1,
          precip=2) |>
   mutate(date=as.Date(date)) |>
-  mutate(mon = month(date)) |> 
+  mutate(mon = month(date),
+         Year = year(date)) |> 
   mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
                             mon %in% c(4,5,6)  ~ "Snowmelt runoff",
                             mon %in% c(7,8,9) ~ "Summer")) |>
@@ -132,6 +133,41 @@ ggplot(p_yearly, aes(Year, PRECIP, fill=season)) +
   scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) 
 ggsave('Figures/annualprecip.png', width = 6.5, height = 4.5, dpi=1200)
 
+p_datenum <-p |>
+  mutate(date = as.numeric(date))
+
+## Try MCMC changepoint analysis for precip ####
+# https://lindeloev.github.io/mcp/articles/packages.html
+library(mcp)
+model = list(precip~1, 1~1, 1~1)  # three intercept-only segments
+fit_mcp = mcp(model, data = p, par_x = "Year")
+summary(fit_mcp)
+# Breaks at 2011 and 2013
+
+
+library(patchwork)
+plot(fit_mcp) + plot_pars(fit_mcp, pars = c("cp_1", "cp_2"), type = "dens_overlay")
+
+
+ggplot(p, aes(date, precip, color=season)) +
+  geom_point() +
+  geom_smooth(method='lm')
+
+## check for trend - unlikely ####
+### Mann-Kendall test ####
+mk.model <- trend::mk.test((p |> filter(season=='Summer'))$precip)
+mk.model # p >0.05
+
+mk.model <- trend::mk.test((p |> filter(season=='Snowmelt runoff'))$precip)
+mk.model # p > 0.05
+
+mk.model <- trend::mk.test((p |> filter(season=='Winter'))$precip)
+mk.model # p > 0.05
+
+
+
+
+
 
 # Air temp ####
 temp <- read.csv('Data/LochValeClimate_IMERG_07312023/surfaceairtemp_C_monthly.csv', skip=7) |>
@@ -149,13 +185,13 @@ temp <- read.csv('Data/LochValeClimate_IMERG_07312023/surfaceairtemp_C_monthly.c
   ungroup()  
 
 # average monthly air temperature
-ggplot(temp) +
+a<-ggplot(temp) +
   geom_line(aes(date, temp), color='grey70') +
   geom_point(aes(date, average_seasonal_temp, color=season)) +
   scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   theme_classic() +
   labs(x='',y='Monthly temperature ('~degree*C*')')
-ggsave('Figures/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
+#ggsave('Figures/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
 
 # average annual temps
 ggplot(temp, aes(Year, average_seasonal_temp, color=season)) +
@@ -183,7 +219,7 @@ summerslope <- temp_annual |> filter(season=='Summer')
 sen.model <- zyp::zyp.sen(average_seasonal_temp ~ Year, summerslope)
 coef(sen.model)
 
-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
+b<-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
   geom_point() +
   geom_abline(intercept = coef(sen.model)[[1]], 
               slope = coef(sen.model)[[2]], color = '#E6A0C4') +
@@ -191,7 +227,10 @@ ggplot(summerslope, aes(Year, average_seasonal_temp)) +
   theme_classic() +
   annotate('text', x=2015, y=13.5, label = 'p-value < 0.05; slope = 0.037')
   
-ggsave('Figures/summer_MKtest.png', width = 6.5, height = 4.5, dpi=1200)
+a/b +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')') 
+
+ggsave('Figures/precip_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 # ### look at a gam ####
