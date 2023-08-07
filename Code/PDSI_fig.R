@@ -35,7 +35,7 @@ ggplot(pdsi_yearly) +
   labs(x = '', y = 'Palmer Drought Severity Index') +
   theme_classic()
 
-## try segmented regression/breakpoint analysis ####
+### try segmented regression/breakpoint analysis ####
 # library(segmented)
 # lm.1 <- lm(pdsi~fakeDate, pdsi_long)
 # 
@@ -68,7 +68,7 @@ ggplot(pdsi_yearly) +
 # breakpoint$psi
 # # no points -- when I did this with all data, there were 10 breakpoints
 
-# Try MCMC changepoint analysis ####
+## Try MCMC changepoint analysis ####
 # https://lindeloev.github.io/mcp/articles/packages.html
 library(mcp)
 model = list(pdsi~1, 1~1, 1~1)  # three intercept-only segments
@@ -97,72 +97,94 @@ ggsave("Figures/PDSI_breakpoints.png", width = 6.5, height = 4.5, dpi=1200)
 
 
 # Precip ####
-p <- read.csv('Data/LochValeClimate_IMERG_07312023/totalprecip_mm_monthly.csv', skip=7) |>
-  rename(date=1,
-         precip=2) |>
-  mutate(date=as.Date(date)) |>
+# #p <- read.csv('Data/LochValeClimate_IMERG_07312023/totalprecip_mm_monthly.csv', skip=7) |>
+#   rename(date=1,
+#          precip=2) |>
+#   mutate(date=as.Date(date)) |>
+#   mutate(mon = month(date),
+#          Year = year(date)) |> 
+#   mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+#                             mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+#                             mon %in% c(7,8,9) ~ "Summer")) |>
+#   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
+#   mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2006), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2007, 2019), "2008-2019", decade)) |>
+#   mutate(decade = as.factor(decade))
+
+nadp_weekly <- read.csv('Data/WeeklyLochValeNADP.csv') |>
+  select(dateOff, NO3, ppt) |>
+  mutate(date = as.Date(dateOff)) |>
+  select(-dateOff) |>
   mutate(mon = month(date),
-         Year = year(date)) |> 
-  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
-                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                            mon %in% c(7,8,9) ~ "Summer")) |>
-  mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) 
+               Year = year(date)) |>
+           mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+                                     mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                                     mon %in% c(7,8,9) ~ "Summer")) |>
+           mutate(season = factor(season, 
+                                  levels = c('Winter','Snowmelt runoff','Summer'))) |>
+           mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2006), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2007, 2019), "2008-2019", decade)) |>
+           mutate(decade = as.factor(decade)) |>
+  mutate(NO3=ifelse(NO3 == -9, NA, NO3),
+         ppt=ifelse(ppt < 0, NA, ppt)) |>
+  filter(decade != 1)
 
 
 
-# total monthy precip
-ggplot(p, mapping = aes(date, precip)) +
-  geom_bar(stat='identity', fill='lightgrey') +
-  geom_line(color='grey40') +
-  geom_point(aes(color=season)) +
-  scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
-  theme_classic() +
-  labs(x='',y='Total monthly precipitation (mm)')
-ggsave('Figures/monthlyprecip.png', width = 6.5, height = 4.5, dpi=1200)
+# # total monthy precip
+# ggplot(p, mapping = aes(date, precip)) +
+#   geom_bar(stat='identity', fill='lightgrey') +
+#   geom_line(color='grey40') +
+#   geom_point(aes(color=season)) +
+#   scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+#   theme_classic() +
+#   labs(x='',y='Total monthly precipitation (mm)')
+# ggsave('Figures/monthlyprecip.png', width = 6.5, height = 4.5, dpi=1200)
 
 # total yearly precip
-p_yearly <- p |>
-  mutate(Year = year(date)) |>
+p_yearly <- nadp_weekly |>
   group_by(Year, season) |>
-  summarise(PRECIP = sum(precip)/100) #mm to cm 
+  summarise(PRECIP = sum(ppt, na.rm=TRUE)/100) #mm to cm 
 
-ggplot(p_yearly, aes(Year, PRECIP, fill=season)) +
+precip <- ggplot(p_yearly, aes(Year, PRECIP, fill=season)) +
   geom_bar(stat='identity') +
   theme_classic() +
   labs(x='',y='Total annual precipitation (cm)')  +
-  scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) 
-ggsave('Figures/annualprecip.png', width = 6.5, height = 4.5, dpi=1200)
+  scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  geom_vline(xintercept = 2002, color = 'red4') +
+  geom_vline(xintercept = 2009, color = 'red4')
+#ggsave('Figures/annualprecip.png', width = 6.5, height = 4.5, dpi=1200)
 
-p_datenum <-p |>
-  mutate(date = as.numeric(date))
+
+
+
 
 ## Try MCMC changepoint analysis for precip ####
 # https://lindeloev.github.io/mcp/articles/packages.html
 library(mcp)
-model = list(precip~1, 1~1, 1~1)  # three intercept-only segments
-fit_mcp = mcp(model, data = p, par_x = "Year")
+model = list(ppt~1, 1~1, 1~1)  # three intercept-only segments
+fit_mcp = mcp(model, data = nadp_weekly, par_x = "Year")
 summary(fit_mcp)
-# Breaks at 2011 and 2013
+# Breaks at 2002 and 2009
 
 
 library(patchwork)
 plot(fit_mcp) + plot_pars(fit_mcp, pars = c("cp_1", "cp_2"), type = "dens_overlay")
 
 
-ggplot(p, aes(date, precip, color=season)) +
-  geom_point() +
-  geom_smooth(method='lm')
 
 ## check for trend - unlikely ####
 ### Mann-Kendall test ####
-mk.model <- trend::mk.test((p |> filter(season=='Summer'))$precip)
-mk.model # p >0.05
+mk.model <- trend::mk.test((nadp_weekly |> filter(season=='Summer') |>
+                              drop_na(ppt))$ppt)
+mk.model # p  = 0.057
 
-mk.model <- trend::mk.test((p |> filter(season=='Snowmelt runoff'))$precip)
+mk.model <- trend::mk.test((nadp_weekly |> filter(season=='Snowmelt runoff') |>
+                              drop_na(ppt))$ppt)
 mk.model # p > 0.05
 
-mk.model <- trend::mk.test((p |> filter(season=='Winter'))$precip)
-mk.model # p > 0.05
+mk.model <- trend::mk.test((nadp_weekly |> filter(season=='Winter') |>
+                              drop_na(ppt))$ppt)
+mk.model # p = 0.053
+
 
 
 
@@ -206,7 +228,7 @@ temp_annual <- temp |>
 ## looks like there might be a trend so let's test ####
 ### Mann-Kendall test ####
 mk.model <- trend::mk.test((temp_annual |> filter(season=='Summer'))$average_seasonal_temp)
-mk.model # p == 0.03
+mk.model # p == 0.04
 
 mk.model <- trend::mk.test((temp_annual |> filter(season=='Snowmelt runoff'))$average_seasonal_temp)
 mk.model # p > 0.05
@@ -230,7 +252,7 @@ b<-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
 a/b +
   plot_annotation(tag_levels = 'a', tag_suffix = ')') 
 
-ggsave('Figures/precip_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
+ggsave('Figures/tmp_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 # ### look at a gam ####
@@ -253,19 +275,27 @@ ggsave('Figures/precip_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 # N-Deposition data ####
-nadp <- read.csv('Data/LochValeNADP.csv') |>
-  rename(mon = seas,
-         Year= yr) |>
-  select(mon, Year, NO3) |>
-  mutate(fakeDate = as.Date(paste(Year, mon, '01', sep='-'))) |>
-  mutate(NO3=ifelse(NO3 == -9, NA, NO3)) |>
-  filter(between(Year, 1990, 2019)) |>
-  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
-                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                            mon %in% c(7,8,9) ~ "Summer")) |>
-  mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) 
+# nadp <- read.csv('Data/LochValeNADP.csv') |>
+#   rename(mon = seas,
+#          Year= yr) |>
+#   select(mon, Year, NO3) |>
+#   mutate(fakeDate = as.Date(paste(Year, mon, '01', sep='-'))) |>
+#   mutate(NO3=ifelse(NO3 == -9, NA, NO3)) |>
+#   filter(between(Year, 1990, 2019)) |>
+#   mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+#                             mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+#                             mon %in% c(7,8,9) ~ "Summer")) |>
+#   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) 
+# 
+# nadp_yearly <- nadp |>
+#   group_by(Year) |>
+#   mutate(annualNO3 = mean(NO3, na.rm = TRUE)) |>
+#   ungroup() |>
+#   select(Year, annualNO3) |>
+#   distinct() |>
+#   mutate(fakeDate = as.Date(paste(Year, '01', '01', sep='-')))
 
-nadp_yearly <- nadp |>
+no3_yearly <- nadp_weekly |>
   group_by(Year) |>
   mutate(annualNO3 = mean(NO3, na.rm = TRUE)) |>
   ungroup() |>
@@ -273,20 +303,87 @@ nadp_yearly <- nadp |>
   distinct() |>
   mutate(fakeDate = as.Date(paste(Year, '01', '01', sep='-')))
 
-ggplot() +
-  geom_point(nadp, mapping=aes(fakeDate, NO3, color=season)) +
-  geom_point(nadp_yearly, mapping=aes(fakeDate, annualNO3, shape='Annual average')) +
+ndep <- ggplot() +
+  geom_point(nadp_weekly, mapping=aes(date, NO3, color=season), show.legend = FALSE) +
+  geom_point(no3_yearly, mapping=aes(fakeDate, annualNO3, shape='Annual average nitrate-deposition')) +
   scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   scale_shape_manual('', values=c(0)) +
   theme_classic() +
-  labs(x='',y='Nitrate wet deposition ('~mg*L^-1*')')
-ggsave('Figures/wetNdep.png', width = 6.5, height = 4.5, dpi=1200)
+  labs(x='',y='Nitrate deposition ('~mg*L^-1*')') +
+  geom_vline(xintercept = as.numeric(ymd("2004-01-01")), color = 'red4') +
+  geom_vline(xintercept = as.numeric(ymd("2009-01-01")), color = 'red4') + theme(
+    legend.position = c(.95, .95),
+    legend.justification = c("right", "top"),
+    legend.box.just = "right",
+    legend.margin = margin(6, 6, 6, 6)
+    )
+# ggsave('Figures/NO3dep.png', width = 6.5, height = 4.5, dpi=1200)
   
 
 ## Try MCMC changepoint analysis for nadp ####
 # https://lindeloev.github.io/mcp/articles/packages.html
 library(mcp)
 model = list(NO3~1, 1~1, 1~1)  # three intercept-only segments
-fit_mcp = mcp(model, data = nadp, par_x = "Year")
+fit_mcp = mcp(model, data = nadp_weekly, par_x = "Year")
 summary(fit_mcp)
-# Breaks at 1999.75 and 2008.09!!!!
+# Breaks at 2003.66 and 2009
+
+
+library(patchwork)
+precip/ndep +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')') #  +
+ # plot_layout(guides = 'collect')
+
+ggsave('Figures/ndep_precip.png', width = 8.5, height = 6.5, dpi=1200)
+
+
+
+# snowpack ####
+snowpack <- read.csv('Data/LochValeClimate_IMERG_07312023/snowdepth_m_monthly.csv', skip=7) |>
+  rename(date=1,
+         snowpack_m=2) |>
+  mutate(date=as.Date(date)) |>
+  mutate(mon = month(date),
+         Year = year(date)) |>
+  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                            mon %in% c(7,8,9) ~ "Summer")) |>
+  mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
+  mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2006), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2007, 2019), "2008-2019", decade)) |>
+  mutate(decade = as.factor(decade)) |>
+  drop_na(decade)
+
+
+
+ggplot(snowpack, aes(Year, snowpack_m, fill=season)) +
+  geom_bar(stat='identity') +
+  scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  geom_hline(yintercept = meansno) +
+  theme_classic() +
+  labs(x = '', y = 'Snow depth (m)')
+
+ggsave('Figures/snowpack.png', width = 6.5, height = 4.5, units = 'in', dpi = 1200)
+
+## is there trend in snowpack ####
+
+annualsno <- snowpack |>
+  group_by(Year) |>
+  summarise(snow = sum(snowpack_m)) |>
+  ungroup()
+
+mk.model <- trend::mk.test(annualsno$snow)
+mk.model # p > 0.05
+
+ggplot(annualsno, aes(Year, snow)) +
+  geom_point()
+
+ snowpack |>
+  group_by(mon) |>
+  summarise(avesnow = mean(snowpack_m)) |>
+  ungroup() |>
+  mutate(mon = as.factor(mon)) |>
+  ggplot() +
+  geom_bar(stat='identity', aes(mon, avesnow)) +
+  labs(x='Month', y='Average snowpack 1990-2019 (m)') +
+  theme_classic()
+ ggsave('Figures/snow_season.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
