@@ -1,4 +1,5 @@
 # Script to create HCG plots for Loch Vale Case Study ####
+# timeseries broken into 3 periods via Palmer Drought Severity Index 
 
 library(tidyverse)
 library(lubridate)
