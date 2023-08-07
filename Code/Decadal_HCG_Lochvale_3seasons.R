@@ -1,3 +1,5 @@
+# Script to create HCG plots for Loch Vale Case Study ####
+
 library(tidyverse)
 library(lubridate)
 library(dataRetrieval)
