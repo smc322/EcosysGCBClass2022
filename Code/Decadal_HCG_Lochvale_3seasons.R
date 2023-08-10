@@ -12,10 +12,8 @@ hydro <- '#4D6BBC'
     
   # Loch Vale streamflow and nutreint data
   lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
-    select(-X, -X.1) |>
-    mutate(Date = as.Date(Date)) |>
-    rename(date = Date) |>
-    filter(year(date) > 1984) # only keep years when we had nutrient and streamflow
+    select(-X) |>
+    mutate(date = as.Date(date))
   
   
   # format data into weekly averages, per decade and organized by water year ####
@@ -33,8 +31,8 @@ hydro <- '#4D6BBC'
     mutate(decade = ifelse(year(date) <= 1990, 1, NA),
            # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
            decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),
-           decade = ifelse(between(year(date), 2000, 2006), "2001-2007 (Drought)", decade),
-           decade = ifelse(between(year(date), 2007, 2019), "2008-2019", decade)) |>
+           decade = ifelse(between(year(date), 2001, 2007), "2001-2007 (Drought)", decade),
+           decade = ifelse(between(year(date), 2008, 2019), "2008-2019", decade)) |>
     mutate(decade = as.factor(decade)) |>
     mutate(mon = month(date)) |> #and add seasons to the dataframe
     # mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
@@ -59,8 +57,8 @@ hydro <- '#4D6BBC'
   
   #timeseries ####
   
-  #coef <- mean(as.numeric(lochvale_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly$discharge_rate, na.rm = TRUE)
-  coef <- 0.05
+  coef <- mean(as.numeric(lochvale_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly$discharge_rate, na.rm = TRUE)
+  
   
   p1 <- ggplot(lochvale_weekly |> filter(decade != "1")) +
     geom_line(aes(date, discharge_rate * coef, linetype = decade), color = hydro) +
@@ -212,5 +210,16 @@ plot_layout(guides = 'collect', design = layout)
 ggsave("Figures/HCG_average_weekly_BREAKPOINT.png", width = 7.5, height = 5.5, dpi=1200)
   
 
+# look closer at winter 2008-2019
+lochvale_lateperiod <- lochvale |>
+  filter(year(date) > 2007) 
 
+
+#mon %in% c(11,12,1,2,3) # winter months
+library(plotly)
+ggplotly(ggplot(lochvale_lateperiod) +
+  geom_line(aes(date, discharge_rate)))
+
+ggplotly(ggplot(lochvale_lateperiod) +
+           geom_line(aes(date, Nitrate_mgl)))
   

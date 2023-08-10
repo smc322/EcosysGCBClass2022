@@ -8,12 +8,10 @@ library(readxl)
 nitr <- '#90C24C'
 hydro <- '#4D6BBC'  
     
-  # Loch Vale streamflow and nutrient data
-  lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
-    select(-X, -X.1) |>
-    mutate(Date = as.Date(Date)) |>
-    rename(date = Date) |>
-    filter(year(date) > 1984) # only keep years when we had nutrient and streamflow
+# Loch Vale streamflow and nutreint data
+lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
+  select(-X) |>
+  mutate(date = as.Date(date))
 
   # ENSO data
   enso <- read_xlsx('Data/ENSO_NOAA.xlsx')
@@ -56,8 +54,8 @@ hydro <- '#4D6BBC'
   
   #timeseries ####
   
-  #coef <- mean(as.numeric(lochvale_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly$discharge_rate, na.rm = TRUE)
-  coef <- 0.05
+  coef <- mean(as.numeric(lochvale_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly$discharge_rate, na.rm = TRUE)
+
   
   p1 <- ggplot(lochvale_weekly_enso |> filter(!is.na(ENSO))) +
     geom_line(aes(date, discharge_rate * coef, linetype = ENSO), color = hydro) +
