@@ -3,10 +3,10 @@ User Start Date:,1990-01-01T00:00:00Z
 User End Date:,2019-12-31T23:59:59Z
 User Bounding Box:,"-105.6762,40.2772,-105.6345,40.3008"
 Data Bounding Box:,"-105.688,40.3125,-105.688,40.3125"
-URL to Reproduce Results:,"https://giovanni.gsfc.nasa.gov/giovanni/#service=ArAvTs&starttime=1990-01-01T00:00:00Z&endtime=2019-12-31T23:59:59Z&bbox=-105.6762,40.2772,-105.6345,40.3008&data=FLDAS_NOAH01_C_GL_M_001_Qs_tavg%2CGLDAS_NOAH025_M_2_0_SWE_inst%2CGLDAS_NOAH025_M_2_1_SWE_inst%2CM2TMNXFLX_5_12_4_TLML(units%3DC)%2CM2SMNXEDI_1_PRCPTOT%2CNLDAS_NOAH0125_M_2_0_Qsm%2CNLDAS_NOAH0125_M_2_0_SnowDepth%2CNLDAS_NOAH0125_M_2_0_Streamflow&portal=GIOVANNI&format=json"
-Fill Value (NLDAS_NOAH0125_M_2_0_Qsm):, -9999
+URL to Reproduce Results:,"https://giovanni.gsfc.nasa.gov/giovanni/#service=ArAvTs&starttime=1990-01-01T00:00:00Z&endtime=2019-12-31T23:59:59Z&bbox=-105.6762,40.2772,-105.6345,40.3008&data=NLDAS_NOAH0125_M_2_0_Qsm&portal=GIOVANNI&format=json"
+Fill Value (mean_NLDAS_NOAH0125_M_2_0_Qsm):, -9999
 
-time, NLDAS_NOAH0125_M_2_0_Qsm
+time, mean_NLDAS_NOAH0125_M_2_0_Qsm
 1990-02-01 00:00:00,0
 1990-03-01 00:00:00,5.80089855
 1990-04-01 00:00:00,48.8059006

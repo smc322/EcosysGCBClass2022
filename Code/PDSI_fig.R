@@ -387,3 +387,7 @@ ggplot(annualsno, aes(Year, snow)) +
   labs(x='Month', y='Average snowpack 1990-2019 (m)') +
   theme_classic()
  ggsave('Figures/snow_season.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
+ 
+ 
+
+ 

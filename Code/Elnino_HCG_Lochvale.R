@@ -39,9 +39,9 @@ hydro <- '#4D6BBC'
     #                           mon %in% c(4,5,6)  ~ "Apr-Jun",
     #                           mon %in% c(7,8,9) ~ "Jul-Sep")) |>
     # mutate(season = factor(season, levels = c('Oct-Dec','Jan-Mar','Apr-Jun','Jul-Sep'))) |>
-    mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+    mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
                               mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                              mon %in% c(7,8,9) ~ "Summer")) |>
+                              mon %in% c(7,8,9,10) ~ "Summer")) |>
     mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
     group_by(CDate, ENSO) |>
     mutate(ave_weekly_nitrate = mean(Nitrate_mgl, na.rm = TRUE),
