@@ -358,7 +358,6 @@ snowpack <- read.csv('Data/LochValeClimate_IMERG_07312023/snowdepth_m_monthly.cs
 ggplot(snowpack, aes(Year, snowpack_m, fill=season)) +
   geom_bar(stat='identity') +
   scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
-  geom_hline(yintercept = meansno) +
   theme_classic() +
   labs(x = '', y = 'Snow depth (m)')
 
