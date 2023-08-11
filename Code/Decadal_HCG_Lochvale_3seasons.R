@@ -220,6 +220,6 @@ library(plotly)
 ggplotly(ggplot(lochvale_lateperiod) +
   geom_line(aes(date, discharge_rate)))
 
-ggplotly(ggplot(lochvale_lateperiod) +
+ggplotly(ggplot(lochvale) +
            geom_line(aes(date, Nitrate_mgl)))
   
