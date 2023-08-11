@@ -154,8 +154,13 @@ precip <- ggplot(p_yearly, aes(Year, PRECIP, fill=season)) +
 #ggsave('Figures/annualprecip.png', width = 6.5, height = 4.5, dpi=1200)
 
 
+p_ann <-nadp_weekly |>
+  group_by(Year, decade) |>
+  summarise(PRECIP = sum(ppt, na.rm=TRUE)/100) #mm to cm 
 
-
+ggplot(p_ann, aes(decade, PRECIP)) +
+  geom_boxplot()
+# no diff between 1990-2000 and 2008-2019
 
 ## Try MCMC changepoint analysis for precip ####
 # https://lindeloev.github.io/mcp/articles/packages.html
@@ -349,7 +354,7 @@ snowpack <- read.csv('Data/LochValeClimate_IMERG_07312023/snowdepth_m_monthly.cs
                             mon %in% c(4,5,6)  ~ "Snowmelt runoff",
                             mon %in% c(7,8,9) ~ "Summer")) |>
   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
-  mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2006), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2007, 2019), "2008-2019", decade)) |>
+  mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2007), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2008, 2019), "2008-2019", decade)) |>
   mutate(decade = as.factor(decade)) |>
   drop_na(decade)
 
@@ -369,6 +374,7 @@ annualsno <- snowpack |>
   group_by(Year) |>
   summarise(snow = sum(snowpack_m)) |>
   ungroup()
+
 
 mk.model <- trend::mk.test(annualsno$snow)
 mk.model # p > 0.05
