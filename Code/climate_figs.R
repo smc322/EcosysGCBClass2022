@@ -357,8 +357,9 @@ snowpack <- read.csv('Data/LochValeClimate_IMERG_07312023/snowdepth_m_monthly.cs
   mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2007), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2008, 2019), "2008-2019", decade)) |>
   mutate(decade = as.factor(decade)) |>
   drop_na(decade)
-
-
+library(plotly)
+ggplotly(ggplot(snowpack, aes(date, snowpack_m)) +
+  geom_line())
 
 ggplot(snowpack, aes(Year, snowpack_m, fill=season)) +
   geom_bar(stat='identity') +
