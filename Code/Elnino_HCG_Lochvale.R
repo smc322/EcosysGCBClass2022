@@ -54,7 +54,7 @@ lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
   
   #timeseries ####
   
-  coef <- mean(as.numeric(lochvale_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly$discharge_rate, na.rm = TRUE)
+  coef <- mean(as.numeric(lochvale_weekly_enso$ave_weekly_nitrate), na.rm = TRUE) / mean(lochvale_weekly_enso$discharge_rate, na.rm = TRUE)
 
   
   p1 <- ggplot(lochvale_weekly_enso |> filter(!is.na(ENSO))) +
@@ -84,7 +84,7 @@ lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
           legend.position = 'none') +
     scale_x_date(labels = date_format('%b')) +
     scale_linetype_manual(values = c(3, 2, 1)) +
-    geom_vline(xintercept= c(as.numeric(as.Date("1900-10-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01')), as.numeric(as.Date('1901-09-30'))),
+    geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01'))),
                linetype=4, colour="grey") +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
@@ -116,7 +116,7 @@ lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
     #legend.position = c(0.1,0.8)) +
     scale_x_date(labels = date_format('%b')) +
     scale_linetype_manual(values = c(3, 2, 1)) +
-    geom_vline(xintercept= c(as.numeric(as.Date("1900-10-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01')), as.numeric(as.Date('1901-09-30'))),
+    geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01'))),
                linetype=4, colour="grey") +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
