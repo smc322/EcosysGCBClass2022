@@ -1,7 +1,7 @@
 ## call functions
-source("Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
-source("Hydro_Chemo_Graphs/Code/Functions/wateryearplot.R")
-source("Hydro_Chemo_Graphs/Code/Functions/cQ_graph.R")
+source("Archive_Exploration/Hydro_Chemo_Graphs/Code/Functions/chemo_hydrograph.R")
+source("Archive_Exploration/Hydro_Chemo_Graphs/Code/Functions/wateryearplot.R")
+source("Archive_Exploration/Hydro_Chemo_Graphs/Code/Functions/cQ_graph.R")
 
 library(tidyverse)
 library(lubridate)
@@ -10,7 +10,7 @@ library(patchwork)
 
 
 ## call data and format
-source("Hydro_Chemo_Graphs/Data/Call_Data.R") 
+source('C:/PhD_code/EcosysGCBClass2022/Archive_Exploration/Hydro_Chemo_Graphs/Data/Call_Data.R') 
 
 
 #### format the datasets ####
@@ -26,6 +26,11 @@ Gl4stoich <- Gl4Chem |> #units for TDN, TDP are in umol/L
          TDP > 0) |>
   select(year, date, NO3., TDN, TDP, tdn.tdp) |>
   filter(tdn.tdp < 9000) # remove that one crazy outlier
+
+gl4_chem <- Gl4Chem |>
+  select(date, year, NO3.) |>
+  mutate(NO3. = as.numeric(NO3.)) |>
+  drop_na()
   
 
 ## filter discharge data
@@ -36,8 +41,26 @@ Gl4Dis_a <- Gl4Dis |>
   select(year, date, discharge_rate) #cms
   
 
-Gl4Data <- full_join(Gl4stoich, Gl4Dis_a) |>
-  arrange(date)
+Gl4Data <- full_join(gl4_chem, Gl4Dis_a) |>
+  arrange(date) |>
+  drop_na() |>
+  mutate(mon = month(date)) |> #and add seasons to the dataframe
+  # mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
+  #                           mon %in% c(1,2,3) ~ "Jan-Mar",
+  #                           mon %in% c(4,5,6)  ~ "Apr-Jun",
+  #                           mon %in% c(7,8,9) ~ "Jul-Sep")) |>
+  # mutate(season = factor(season, levels = c('Oct-Dec','Jan-Mar','Apr-Jun','Jul-Sep'))) |>
+  mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
+                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                            mon %in% c(7,8,9,10) ~ "Summer")) |>
+  mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) 
+
+ggplot(Gl4Data) +
+  geom_point(aes(date, NO3.)) 
+  
+
+count <- Gl4Data |>
+  count(year, season)
 
 
 
