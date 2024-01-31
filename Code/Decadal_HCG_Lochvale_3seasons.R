@@ -96,7 +96,7 @@ hydro <- '#4D6BBC'
           axis.text = element_text(size = 8),
           axis.title = element_text(size =8))
   
-  
+  p1
   
   # cumulative sum figure ####
   massload <- lochvale_weekly |> 

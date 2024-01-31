@@ -2,17 +2,27 @@
 library(tidyverse)
 library(macrosheds)
 
+library(tidyverse)
+library(lubridate)
+library(dataRetrieval)
+library(scales)
+library(patchwork)
+
+nitr <- '#90C24C'
+hydro <- '#4D6BBC' 
+
+
 ?ms_download_core_data
-ms_download_core_data(my_ms_dir, domains='hjandrews')
+#ms_download_core_data(my_ms_dir, domains='hjandrews')
 
 # list available Macrosheds R package functions
 help(package = macrosheds)
 
-ms_vars <- ms_load_variables()
+#ms_vars <- ms_load_variables()
 
 
 ?ms_load_sites
-site_data <- ms_load_sites()
+#site_data <- ms_load_sites()
 
 ?ms_load_product
 my_ms_dir <- "./data/macrosheds"
@@ -48,11 +58,52 @@ my_q_2 <- my_q |>
 
 andrews <- left_join(my_chem_2, my_q_2)
 
+andrews02 <- andrews |>
+  filter(site_code == 'GSWS02')
 
+andrews08 <- andrews |>
+  filter(site_code == 'GSWS08')
 
 # format data into weekly averages, per decade and organized by water year ####
 
-andrews_weekly <- andrews |>
+andrews02_weekly <- andrews02 |>
+  mutate(x = round((day(date)/5))*5,
+         x = ifelse(x == 0, 1, x), 
+         date2 = paste(year(date), month(date), x, sep = "-")) |>
+  mutate(Date = as.Date(date2)) |># must be named "Date" to work with the dataRetrieval function
+  #seq along dates starting with the beginning of your water year
+  mutate(date2 = ifelse(is.na(Date), paste0(year(date), '-03-01'), date2)) |>
+  mutate(Date = as.Date(date2)) |>
+  mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
+                              "-", month(Date), "-", day(Date)))) |>
+  mutate(decade = ifelse(year(date) <= 1990, 1, NA),
+         # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
+         decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),
+         decade = ifelse(between(year(date), 2001, 2007), "2001-2007 (Drought)", decade),
+         decade = ifelse(between(year(date), 2008, 2019), "2008-2019", decade)) |>
+  mutate(decade = as.factor(decade)) |>
+  mutate(mon = month(date)) |> #and add seasons to the dataframe
+  # mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
+  #                           mon %in% c(1,2,3) ~ "Jan-Mar",
+  #                           mon %in% c(4,5,6)  ~ "Apr-Jun",
+  #                           mon %in% c(7,8,9) ~ "Jul-Sep")) |>
+  # mutate(season = factor(season, levels = c('Oct-Dec','Jan-Mar','Apr-Jun','Jul-Sep'))) |>
+  mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
+                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                            mon %in% c(7,8,9,10) ~ "Summer")) |>
+  mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
+  group_by(CDate, decade, site_code) |>
+  mutate(ave_weekly_nitrate = mean(Nitrate_mgl, na.rm = TRUE),
+         ave_weekly_dis = mean(discharge_rate, na.rm = TRUE)) |>
+  ungroup() |>
+  addWaterYear() |>
+  select(CDate, decade, site_code, ave_weekly_nitrate, ave_weekly_dis, season) |>
+  distinct() |>
+  mutate(date = CDate) |>
+  rename(discharge_rate = ave_weekly_dis) # renamed to work with pre-written plot code
+
+
+andrews08_weekly <- andrews08 |>
   mutate(x = round((day(date)/5))*5,
          x = ifelse(x == 0, 1, x), 
          date2 = paste(year(date), month(date), x, sep = "-")) |>
@@ -91,12 +142,14 @@ andrews_weekly <- andrews |>
 
 #timeseries ####
 
-coef <- mean(as.numeric(andrews_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(andrews_weekly$discharge_rate, na.rm = TRUE)
+coef02 <- mean(as.numeric(andrews02_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(andrews02_weekly$discharge_rate, na.rm = TRUE)
+
+coef08 <- mean(as.numeric(andrews08_weekly$ave_weekly_nitrate), na.rm = TRUE) / mean(andrews08_weekly$discharge_rate, na.rm = TRUE)
 
 
-p1_site2 <- ggplot(andrews_weekly |> filter(decade != "1",
+p1_site2 <- ggplot(andrews02_weekly |> filter(decade != "1",
                                             site_code == 'GSWS02')) +
-  geom_line(aes(date, discharge_rate * coef, linetype = decade), color = hydro) +
+  geom_line(aes(date, discharge_rate * coef02, linetype = decade), color = hydro) +
   geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
   theme_classic() +
   labs (x = '') +
@@ -109,7 +162,7 @@ p1_site2 <- ggplot(andrews_weekly |> filter(decade != "1",
     name = "Average Weekly Nitrate "~(mg~L^-1),
     
     # second axis 
-    sec.axis = sec_axis(~./coef, name = "Average Weekly Streamflow "~(m^3~s^-1))
+    sec.axis = sec_axis(~./coef02, name = "Average Weekly Streamflow "~(m^3~s^-1))
   )  +
   
   guides(linetype = guide_legend(override.aes = list(color = "black"))) +
@@ -131,9 +184,9 @@ p1_site2 <- ggplot(andrews_weekly |> filter(decade != "1",
         axis.title = element_text(size =8))
 
 
-p1_site8 <- ggplot(andrews_weekly |> filter(decade != "1",
+p1_site8 <- ggplot(andrews08_weekly |> filter(decade != "1",
                                             site_code == 'GSWS08')) +
-  geom_line(aes(date, discharge_rate * coef, linetype = decade), color = hydro) +
+  geom_line(aes(date, discharge_rate * coef08, linetype = decade), color = hydro) +
   geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
   theme_classic() +
   labs (x = '') +
@@ -146,7 +199,7 @@ p1_site8 <- ggplot(andrews_weekly |> filter(decade != "1",
     name = "Average Weekly Nitrate "~(mg~L^-1),
     
     # second axis 
-    sec.axis = sec_axis(~./coef, name = "Average Weekly Streamflow "~(m^3~s^-1))
+    sec.axis = sec_axis(~./coef08, name = "Average Weekly Streamflow "~(m^3~s^-1))
   )  +
   
   guides(linetype = guide_legend(override.aes = list(color = "black"))) +
@@ -166,10 +219,23 @@ p1_site8 <- ggplot(andrews_weekly |> filter(decade != "1",
         text = element_text(family = 'serif'),
         axis.text = element_text(size = 8),
         axis.title = element_text(size =8))
+
+
+p1_site2
+p1_site8
 
 
 # cumulative sum figure ####
-massload <- andrews_weekly |> 
+massload02 <- andrews02_weekly |> 
+  filter(decade != "1") |>
+  arrange(decade, date, site_code) |>
+  group_by(decade, site_code) |>
+  mutate(timestep = as.numeric(difftime(date, lag(date)), units="secs")) |> #timestep in seconds
+  mutate(massMg = (ave_weekly_nitrate * discharge_rate * timestep)/1000000) |>
+  mutate(cum_sum = cumsum(ifelse(is.na(massMg), 0, massMg))) |>
+  ungroup()
+
+massload08 <- andrews08_weekly |> 
   filter(decade != "1") |>
   arrange(decade, date, site_code) |>
   group_by(decade, site_code) |>
@@ -179,7 +245,7 @@ massload <- andrews_weekly |>
   ungroup()
 
 
-p2_site2 <- ggplot(massload |> filter(site_code == 'GSWS02')) +
+p2_site2 <- ggplot(massload02 |> filter(site_code == 'GSWS02')) +
   geom_line(aes(date, cum_sum, linetype = decade)) +
   #geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
   theme_classic() +
@@ -200,7 +266,7 @@ p2_site2 <- ggplot(massload |> filter(site_code == 'GSWS02')) +
         axis.title = element_text(size =8))
 
 
-p2_site8 <- ggplot(massload |> filter(site_code == 'GSWS08')) +
+p2_site8 <- ggplot(massload08 |> filter(site_code == 'GSWS08')) +
   geom_line(aes(date, cum_sum, linetype = decade)) +
   #geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
   theme_classic() +
@@ -222,7 +288,19 @@ p2_site8 <- ggplot(massload |> filter(site_code == 'GSWS08')) +
 
 
 # cQ figure ####
-slopes <- andrews_weekly |>
+slopes02 <- andrews02_weekly |>
+  filter(decade != "1") |>
+  group_by(decade, season, site_code) |>
+  do({
+    mod = lm(log10(ave_weekly_nitrate) ~ log10(discharge_rate), data = .)
+    data.frame(Intercept = coef(mod)[1],
+               Slope = coef(mod)[2],
+               SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2]),
+               CI.up = confint(mod, 'log10(discharge_rate)', level=0.95)[2],
+               CI.down = confint(mod, 'log10(discharge_rate)', level=0.95)[1]) 
+  })
+
+slopes08 <- andrews08_weekly |>
   filter(decade != "1") |>
   group_by(decade, season, site_code) |>
   do({
@@ -235,7 +313,7 @@ slopes <- andrews_weekly |>
   })
 
 
-p3_site2 <- ggplot(andrews_weekly |> filter(decade != '1',
+p3_site2 <- ggplot(andrews02_weekly |> filter(decade != '1',
                                        !is.na(log10(discharge_rate)),
                                        !is.na(log10(ave_weekly_nitrate)),
                                        site_code == 'GSWS02'), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
@@ -258,7 +336,7 @@ p3_site2 <- ggplot(andrews_weekly |> filter(decade != '1',
   theme(legend.position = 'none') 
 
 
-p3_site8 <- ggplot(andrews_weekly |> filter(decade != '1',
+p3_site8 <- ggplot(andrews08_weekly |> filter(decade != '1',
                                             !is.na(log10(discharge_rate)),
                                             !is.na(log10(ave_weekly_nitrate)),
                                             site_code == 'GSWS08'), aes(log10(discharge_rate), log10(ave_weekly_nitrate))) +
@@ -283,7 +361,7 @@ p3_site8 <- ggplot(andrews_weekly |> filter(decade != '1',
 
 
 
-p4_site2 <- ggplot(slopes |>
+p4_site2 <- ggplot(slopes02 |>
                filter(site_code == 'GSWS02')) +
   labs(x = "cQ slope", y = "") +
   annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
@@ -311,7 +389,7 @@ p4_site2 <- ggplot(slopes |>
         axis.text.y = element_blank())
 
 
-p4_site8 <- ggplot(slopes |> filter(site_code == 'GSWS08')) +
+p4_site8 <- ggplot(slopes08 |> filter(site_code == 'GSWS08')) +
   labs(x = "cQ slope", y = "") +
   annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
   annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
