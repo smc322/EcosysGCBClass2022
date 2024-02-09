@@ -330,8 +330,37 @@ cq_slopes <- all_data |>
                CI.down = confint(mod, 'log10(discharge_Ls)', level=0.95)[1]) 
   }) # some NA slopes in Andrews becuase of 0 value nitrate concentrations reported
 
+cq_slopes$site_code = factor(cq_slopes$site_code, levels=c('LochVale', 'GSWS08'))
 
+szn_cols <- c("#7EA8C4","#EFD15E","#E6A0C4")
 
+ggplot(cq_slopes |> # Andrews 1990 snowmelt runoff slope is 84.6 
+         filter(Slope <80,
+                # Andrews 1996 snowmelt runoff slope is -9
+                Slope > -8), aes(Slope, season, fill=season)) +
+  geom_violin() +
+  labs(x = "cQ slope", y = "") +
+  annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
+  annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
+  annotate("text", label = 'mobilization', x = 1, y = 0.2, size = 2,color = "black") +
+  annotate("text", label = 'dilution', x = -1, y = 0.2, size = 2,color = "black") +
+  scale_fill_manual('', values=szn_cols) +
+  theme_bw()+
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8),
+        axis.text.y = element_blank()) +
+  scale_y_discrete(limits=rev) +
+  geom_jitter( shape=21, col='black', alpha=0.5) +
+  facet_wrap(~site_code, ncol=1, labeller=labeller(site_code= c(LochVale='Loch Vale, elevation 4009m', GSWS08='Andrews - elevation 1182m')))
+
+ggsave("Figures/cq_slopes.png", width = 6.5, height = 4.5, dpi=1200)
+
+  
+
+ 
 
 
 
