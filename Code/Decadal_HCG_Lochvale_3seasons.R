@@ -15,7 +15,6 @@ hydro <- '#4D6BBC'
     select(-X) |>
     mutate(date = as.Date(date))
   
-  #### CHECK DISCHARGE - need L/s for flux calc later 
   
   # format data into weekly averages, per decade and organized by water year ####
   
