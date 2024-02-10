@@ -197,7 +197,7 @@ mk.model # p = 0.053
 
 
 # Air temp ####
-temp <- read.csv('Data/LochValeClimate_IMERG_07312023/surfaceairtemp_C_monthly.csv', skip=7) |>
+temp <- read.csv('Data/LochValeClimate_IMERG_01302024/surfaceairtemp_C_monthly_loch.csv', skip=7) |>
   rename(date=1,
          temp=2) |>
   mutate(date=as.Date(date),
@@ -258,6 +258,85 @@ a/b +
   plot_annotation(tag_levels = 'a', tag_suffix = ')') 
 
 ggsave('Figures/tmp_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
+
+
+
+
+# andy Air temp ####
+temp <- read.csv('Data/AndrewsClimate_IMERG_01302024/surfaceairtemp_C_monthly_andy.csv', skip=7) |>
+  rename(date=1,
+         temp=2) |>
+  mutate(date=as.Date(date),
+         Year=year(date)) |>
+  mutate(mon = month(date)) |> 
+  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                            mon %in% c(7,8,9) ~ "Summer")) |>
+  mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
+  group_by(Year, season) |>
+  mutate(average_seasonal_temp = mean(temp)) |>
+  ungroup()  
+
+# average monthly air temperature
+a<-ggplot(temp) +
+  geom_line(aes(date, temp), color='grey70') +
+  geom_point(aes(date, average_seasonal_temp, color=season)) +
+  scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  theme_classic() +
+  labs(x='',y='Monthly temperature ('~degree*C*')')
+#ggsave('Figures/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
+
+# average annual temps
+ggplot(temp, aes(Year, average_seasonal_temp, color=season)) +
+  geom_point() +
+  geom_smooth(method='gam') +
+  scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) 
+
+temp_annual <- temp |>
+  select(Year, season, average_seasonal_temp) |>
+  distinct()
+
+## looks like there might be a trend so let's test ####
+### Mann-Kendall test ####
+mk.model <- trend::mk.test((temp_annual |> filter(season=='Summer'))$average_seasonal_temp)
+mk.model # p == 4.323e-05
+
+mk.model <- trend::mk.test((temp_annual |> filter(season=='Snowmelt runoff'))$average_seasonal_temp)
+mk.model # 0.02309
+
+mk.model <- trend::mk.test((temp_annual |> filter(season=='Winter'))$average_seasonal_temp)
+mk.model # p > 0.05
+
+### sen slope ####
+summerslope <- temp_annual |> filter(season=='Summer')
+sen.model <- zyp::zyp.sen(average_seasonal_temp ~ Year, summerslope)
+coef(sen.model)
+
+b<-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
+  geom_point() +
+  geom_abline(intercept = coef(sen.model)[[1]], 
+              slope = coef(sen.model)[[2]], color = '#E6A0C4') +
+  labs(x='', y='Mean summertime ('~degree*C*')') +
+  theme_classic() +
+  annotate('text', x=2010, y=13.5, label = 'p-value < 0.0001; slope = 0.061')
+
+
+snowmeltslope <- temp_annual |> filter(season=='Snowmelt runoff')
+sen.model <- zyp::zyp.sen(average_seasonal_temp ~ Year, snowmeltslope)
+coef(sen.model)
+
+c<-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
+  geom_point() +
+  geom_abline(intercept = coef(sen.model)[[1]], 
+              slope = coef(sen.model)[[2]], color = '#EFD15E') +
+  labs(x='', y='Mean snowmelt ('~degree*C*')') +
+  theme_classic() +
+  annotate('text', x=2010, y=13.5, label = 'p-value < 0.05; slope = 0.039')
+
+a/b/c +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')') 
+
+ggsave('Figures/tmp_combinedPlotANDY.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 # ### look at a gam ####
@@ -344,7 +423,7 @@ ggsave('Figures/ndep_precip.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 # snowpack ####
-snowpack <- read.csv('Data/LochValeClimate_IMERG_07312023/snowdepth_m_monthly.csv', skip=7) |>
+snowpack <- read.csv('Data/LochValeClimate_IMERG_01302024/snowdepth_m_monthly_loch.csv', skip=7) |>
   rename(date=1,
          snowpack_m=2) |>
   mutate(date=as.Date(date)) |>
@@ -396,4 +475,28 @@ ggplot(annualsno, aes(Year, snow)) +
  
  
 
+ 
+ # andrews snowpack ####
+ snowpack <- read.csv('Data/AndrewsClimate_IMERG_01302024/snowdepth_m_monthly_andy.csv', skip=7) |>
+   rename(date=1,
+          snowpack_m=2) |>
+   mutate(date=as.Date(date)) |>
+   mutate(mon = month(date),
+          Year = year(date)) |>
+   mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
+                             mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                             mon %in% c(7,8,9) ~ "Summer")) |>
+   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
+   mutate(decade = ifelse(year(date) <= 1990, 1, NA),                                       decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),                                                                               decade = ifelse(between(year(date), 2000, 2007), "2001-2007 (Drought)", decade),  decade = ifelse(between(year(date), 2008, 2019), "2008-2019", decade)) |>
+   mutate(decade = as.factor(decade)) |>
+   drop_na(decade)
+
+ ggplot(snowpack, aes(Year, snowpack_m, fill=season)) +
+   geom_bar(stat='identity') +
+   scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+   theme_classic() +
+   labs(x = '', y = 'Snow depth (m)')
+ 
+ ggsave('Figures/snowpackANDY.png', width = 6.5, height = 4.5, units = 'in', dpi = 1200)
+ 
  

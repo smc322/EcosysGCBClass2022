@@ -22,7 +22,8 @@ help(package = macrosheds)
 
 
 ?ms_load_sites
-#site_data <- ms_load_sites()
+site_data <- ms_load_sites() |>
+  filter(site_code == 'GSWS08')
 
 ?ms_load_product
 my_ms_dir <- "./data/macrosheds"
@@ -43,6 +44,16 @@ my_q <- ms_load_product(
   sort_result = TRUE,
   warn = TRUE
 )
+
+
+# flux calc using macrosheds
+my_flux <- ms_calc_flux(
+  chemistry = my_chem,
+  q = my_q,
+  q_type = 'discharge'
+)
+
+
 
 my_chem_2 <- my_chem |>
   drop_na(val) |>

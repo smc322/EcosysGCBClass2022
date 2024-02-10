@@ -125,7 +125,9 @@ andrews <- read.csv('Data/macrosheds_andrews.csv') |>
 all_data <- rbind(lochvale, andrews) |>
   drop_na() |>
   # add water year from dataRetrieval package
-  addWaterYear()
+  addWaterYear() |>
+  filter(waterYear < 2020) |> #only includes a few days in 2020
+  mutate(discharge_Ls = ifelse(discharge_Ls < 0, 0, discharge_Ls)) # some negative values of discharge at Loch Vale
 
 
 # 3. Average water year figs####
@@ -354,13 +356,106 @@ ggplot(cq_slopes |> # Andrews 1990 snowmelt runoff slope is 84.6
         axis.text.y = element_blank()) +
   scale_y_discrete(limits=rev) +
   geom_jitter( shape=21, col='black', alpha=0.5) +
-  facet_wrap(~site_code, ncol=1, labeller=labeller(site_code= c(LochVale='Loch Vale, elevation 4009m', GSWS08='Andrews - elevation 1182m')))
+  facet_wrap(~site_code, ncol=1, labeller=labeller(site_code= c(LochVale='Loch Vale, elevation 4009m', GSWS08='Andrews - elevation 1182m'))) +
+  # bring out high snow years
+  geom_point(cq_slopes |> filter(site_code=='GSWS08' & waterYear==1993), mapping=aes(Slope, season), shape=8, size=3) +
+geom_point(cq_slopes |> filter(site_code=='LochVale' & waterYear==2011), mapping=aes(Slope, season), shape=8, size=3) + 
+  # bring out low snow years
+  geom_point(cq_slopes |> filter(site_code=='GSWS08' & waterYear==2003), mapping=aes(Slope, season), shape=25, size=2, fill = 'black') +
+  geom_point(cq_slopes |> filter(site_code=='LochVale' & waterYear==2018), mapping=aes(Slope, season), shape=25, size=2, fill = 'black')
 
 ggsave("Figures/cq_slopes.png", width = 6.5, height = 4.5, dpi=1200)
 
-  
 
- 
+# 7. Area-normalized flux ####
+# watershed area: 
+andy_ws_area_ha <- 16.01008 # from macrosheds site info
+loch_ws_area_ha <- 660 # from LTER site description https://www2.nrel.colostate.edu/projects/lvws/site_description.html
+
+# daily time interval
+q_interval <- 86400 # seconds/day
+
+
+flux <- all_data |>
+  mutate(ws_area_ha = case_when(site_code=='LochVale'~loch_ws_area_ha,
+                                site_code=='GSWS08'~andy_ws_area_ha),
+         # calculate flux here
+         # nitrate * discharge * interval(s/day) / convert mg to kg / ws area
+         flux_kg_ha_day = nitrate_mgL*discharge_Ls*q_interval/1e6/ws_area_ha) |>
+  # group_by(site_code, waterYear, season) |>
+  # mutate(seasonal_flux = sum(flux_kg_ha_day)) |>
+  # ungroup() |>
+   group_by(site_code, waterYear) |>
+   mutate(annual_flux = sum(flux_kg_ha_day))
+flux$site_code = factor(flux$site_code, levels=c('LochVale', 'GSWS08'))
+
+
+# fluxes at Loch Vale
+loch_flux <- ggplot(flux |> filter(site_code == 'LochVale'), aes(waterYear,flux_kg_ha_day, fill=season)) +
+  geom_bar(stat='identity') +
+  labs(y = "Nitrate flux "~(kg~ha^-1~day^-1), x = "Water Year",
+       title='Loch Vale, elevation 4009m') +
+  scale_fill_manual('', values=szn_cols) +
+  theme_bw()+
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8)) +
+  geom_point(cq_slopes |> filter(site_code=='LochVale' & waterYear==2011), mapping=aes(2011, 0.4), shape=8, size=2) + 
+  # bring out low snow years
+  geom_point(cq_slopes |> filter(site_code=='LochVale' & waterYear==2018), mapping=aes(2018, 0.4), shape=25, size=2, fill = 'black')
+loch_flux
+
+
+
+# fluxes at Andrews
+andy_high_flux <- ggplot(flux |> filter(site_code == 'GSWS08', 
+                                        waterYear%in%c(1986,1996,2010)) |>
+                           mutate(waterYear=factor(waterYear)), 
+                         aes(waterYear,flux_kg_ha_day, fill=season)) +
+  geom_bar(stat='identity') +
+  labs(y = "", x = "") +
+  scale_fill_manual('', values=szn_cols) +
+  theme_minimal()+
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8),
+        legend.position = 'none')
+andy_high_flux
+
+
+
+# create insert for fluxes at Andrews to view lower flux years
+andy_low_flux <- ggplot(flux |> filter(site_code == 'GSWS08', 
+                                       annual_flux < 0.02), aes(waterYear,flux_kg_ha_day, fill=season)) +
+  geom_bar(stat='identity') +
+  labs(y = "Nitrate flux "~(kg~ha^-1~day^-1), x = "Water Year", title='Andrews - elevation 1182m') +
+  scale_fill_manual('', values=szn_cols) +
+  theme_bw()+
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8)) +
+  # bring out high snow years
+  geom_point(flux |> filter(site_code=='GSWS08' & waterYear==1993), mapping=aes(1993, 0.0025), shape=8, size=2) +
+  # bring out low snow years
+  geom_point(cq_slopes |> filter(site_code=='GSWS08' & waterYear==2003), mapping=aes(2003, 0.001), shape=25, size=2, fill = 'black')
+andy_low_flux
+
+# add insert to andy
+andy_insert <- andy_low_flux +
+  annotation_custom(ggplotGrob(andy_high_flux),
+                    ymin=0.003, ymax=0.0095, xmin=2000, xmax=2020)
+
+loch_flux/andy_insert  +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')') +
+  plot_layout(guides = 'collect')
+
+ggsave("Figures/nitrate_flux.png", width = 7.5, height = 5.5, dpi=1200)
 
 
 
