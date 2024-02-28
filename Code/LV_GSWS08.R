@@ -1,6 +1,6 @@
-#~~~~~~~~~~~~~~~~~~~~~#
-# Case Studies for HCG
-#~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Comparing Andrews GSWS08 to LochVale
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
 library(tidyverse)
@@ -30,7 +30,7 @@ read.csv('Data/LochValeClimate_IMERG_01302024/snowdepth_m_monthly_loch.csv', ski
 # winter (snow increasing November-March)
 # snowmelt runoff (snow decreasing April-June)
 # summer (little to no snow July-October) 
-ggsave('Figures/snow_season_LochVALE.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
+ggsave('Figures/LochVale_AndyGSWS08/snow_season_LochVALE.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
 
 
 ## 1b. Andrews ####
@@ -51,7 +51,7 @@ read.csv('Data/AndrewsClimate_IMERG_01302024/snowdepth_m_monthly_andy.csv', skip
 # winter (snow increasing December-February)
 # snowmelt runoff (snow decreasing March-April)
 # summer (little to no snow May-November) 
-ggsave('Figures/snow_season_Andrews.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
+ggsave('Figures/LochVale_AndyGSWS08/snow_season_Andrews.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
 
 ## 1c. High/low snow years - in 'water years' ####
 # Loch Vale
@@ -315,7 +315,7 @@ andy_snowyrs
   plot_annotation(tag_levels = 'a', tag_suffix = ')') +
   plot_layout(guides = 'collect')
 
-ggsave("Figures/HCG_average_snowyears.png", width = 7.5, height = 5.5, dpi=1200)
+ggsave("Figures/LochVale_AndyGSWS08/HCG_average_snowyears.png", width = 7.5, height = 5.5, dpi=1200)
 
 
 # 6. cQ plots ####
@@ -364,7 +364,7 @@ geom_point(cq_slopes |> filter(site_code=='LochVale' & waterYear==2011), mapping
   geom_point(cq_slopes |> filter(site_code=='GSWS08' & waterYear==2003), mapping=aes(Slope, season), shape=25, size=2, fill = 'black') +
   geom_point(cq_slopes |> filter(site_code=='LochVale' & waterYear==2018), mapping=aes(Slope, season), shape=25, size=2, fill = 'black')
 
-ggsave("Figures/cq_slopes.png", width = 6.5, height = 4.5, dpi=1200)
+ggsave("Figures/LochVale_AndyGSWS08/cq_slopes.png", width = 6.5, height = 4.5, dpi=1200)
 
 
 # 7. Area-normalized flux ####
@@ -455,7 +455,7 @@ loch_flux/andy_insert  +
   plot_annotation(tag_levels = 'a', tag_suffix = ')') +
   plot_layout(guides = 'collect')
 
-ggsave("Figures/nitrate_flux.png", width = 7.5, height = 5.5, dpi=1200)
+ggsave("Figures/LochVale_AndyGSWS08/nitrate_flux.png", width = 7.5, height = 5.5, dpi=1200)
 
 
 

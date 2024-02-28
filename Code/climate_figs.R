@@ -82,7 +82,7 @@ summary(fit_mcp)
 library(patchwork)
 plot(fit_mcp) + plot_pars(fit_mcp, pars = c("cp_1", "cp_2"), type = "dens_overlay")
 
-ggsave("Figures/breakpoint_MCMCfit.png", width = 7.5, height = 5.5, dpi=1200)
+ggsave("Figures/LochVale/breakpoint_MCMCfit.png", width = 7.5, height = 5.5, dpi=1200)
 
 
 ggplot(pdsi_long) +
@@ -92,7 +92,7 @@ ggplot(pdsi_long) +
   theme_classic() +
   geom_vline(xintercept = as.numeric(ymd("2000-01-01")), color = 'red4') +
   geom_vline(xintercept = as.numeric(ymd("2007-01-01")), color = 'red4')
-ggsave("Figures/PDSI_breakpoints.png", width = 6.5, height = 4.5, dpi=1200)
+ggsave("Figures/LochVale/PDSI_breakpoints.png", width = 6.5, height = 4.5, dpi=1200)
 
 
 
@@ -137,7 +137,7 @@ nadp_weekly <- read.csv('Data/WeeklyLochValeNADP.csv') |>
 #   scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
 #   theme_classic() +
 #   labs(x='',y='Total monthly precipitation (mm)')
-# ggsave('Figures/monthlyprecip.png', width = 6.5, height = 4.5, dpi=1200)
+# ggsave('Figures/LochVale/monthlyprecip.png', width = 6.5, height = 4.5, dpi=1200)
 
 # total yearly precip
 p_yearly <- nadp_weekly |>
@@ -151,7 +151,7 @@ precip <- ggplot(p_yearly, aes(Year, PRECIP, fill=season)) +
   scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   geom_vline(xintercept = 2002, color = 'red4') +
   geom_vline(xintercept = 2009, color = 'red4')
-#ggsave('Figures/annualprecip.png', width = 6.5, height = 4.5, dpi=1200)
+#ggsave('Figures/LochVale/annualprecip.png', width = 6.5, height = 4.5, dpi=1200)
 
 
 p_ann <-nadp_weekly |>
@@ -218,7 +218,7 @@ a<-ggplot(temp) +
   scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   theme_classic() +
   labs(x='',y='Monthly temperature ('~degree*C*')')
-#ggsave('Figures/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
+#ggsave('Figures/LochVale/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
 
 # average annual temps
 ggplot(temp, aes(Year, average_seasonal_temp, color=season)) +
@@ -257,7 +257,7 @@ b<-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
 a/b +
   plot_annotation(tag_levels = 'a', tag_suffix = ')') 
 
-ggsave('Figures/tmp_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
+ggsave('Figures/LochVale/tmp_combinedPlot.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 
@@ -284,7 +284,7 @@ a<-ggplot(temp) +
   scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   theme_classic() +
   labs(x='',y='Monthly temperature ('~degree*C*')')
-#ggsave('Figures/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
+#ggsave('Figures/LochVale/monthlytemp.png', width = 6.5, height = 4.5, dpi=1200)
 
 # average annual temps
 ggplot(temp, aes(Year, average_seasonal_temp, color=season)) +
@@ -336,7 +336,7 @@ c<-ggplot(summerslope, aes(Year, average_seasonal_temp)) +
 a/b/c +
   plot_annotation(tag_levels = 'a', tag_suffix = ')') 
 
-ggsave('Figures/tmp_combinedPlotANDY.png', width = 8.5, height = 6.5, dpi=1200)
+ggsave('Figures/LochVale/tmp_combinedPlotANDY.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 # ### look at a gam ####
@@ -401,7 +401,7 @@ ndep <- ggplot() +
     legend.box.just = "right",
     legend.margin = margin(6, 6, 6, 6)
     )
-# ggsave('Figures/NO3dep.png', width = 6.5, height = 4.5, dpi=1200)
+# ggsave('Figures/LochVale/NO3dep.png', width = 6.5, height = 4.5, dpi=1200)
   
 
 ## Try MCMC changepoint analysis for nadp ####
@@ -418,7 +418,7 @@ precip/ndep +
   plot_annotation(tag_levels = 'a', tag_suffix = ')') #  +
  # plot_layout(guides = 'collect')
 
-ggsave('Figures/ndep_precip.png', width = 8.5, height = 6.5, dpi=1200)
+ggsave('Figures/LochVale/ndep_precip.png', width = 8.5, height = 6.5, dpi=1200)
 
 
 
@@ -446,7 +446,7 @@ ggplot(snowpack, aes(Year, snowpack_m, fill=season)) +
   theme_classic() +
   labs(x = '', y = 'Snow depth (m)')
 
-ggsave('Figures/snowpack.png', width = 6.5, height = 4.5, units = 'in', dpi = 1200)
+ggsave('Figures/LochVale/snowpack.png', width = 6.5, height = 4.5, units = 'in', dpi = 1200)
 
 ## is there trend in snowpack ####
 
@@ -471,7 +471,7 @@ ggplot(annualsno, aes(Year, snow)) +
   geom_bar(stat='identity', aes(mon, avesnow)) +
   labs(x='Month', y='Average snowpack 1990-2019 (m)') +
   theme_classic()
- ggsave('Figures/snow_season.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
+ ggsave('Figures/LochVale/snow_season.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
  
  
 
@@ -497,6 +497,6 @@ ggplot(annualsno, aes(Year, snow)) +
    theme_classic() +
    labs(x = '', y = 'Snow depth (m)')
  
- ggsave('Figures/snowpackANDY.png', width = 6.5, height = 4.5, units = 'in', dpi = 1200)
+ ggsave('Figures/LochVale/snowpackANDY.png', width = 6.5, height = 4.5, units = 'in', dpi = 1200)
  
  

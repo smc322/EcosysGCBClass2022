@@ -13,40 +13,39 @@ hydro <- '#4D6BBC'
   # Loch Vale streamflow and nutreint data
   lochvale <- read.csv("Data/USGS_lochvaleoutlet.csv") |>
     select(-X) |>
-    mutate(date = as.Date(date))
-  
+    mutate(Date = as.Date(date)) |>
+    select(-date) |>
+    rename(nitrate_mgL = Nitrate_mgL) |>
+    mutate(site_code = 'LochVale') |>
+    # add seasons to the dataframe (based on snow depth data)
+    mutate(mon = month(Date)) |>
+    mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
+                              mon %in% c(4,5,6)  ~ "Snowmelt runoff",
+                              mon %in% c(7,8,9,10) ~ "Summer")) |>
+    mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer')))
   
   # format data into weekly averages, per decade and organized by water year ####
   
   lochvale_weekly <- lochvale |>
-    mutate(x = round((day(date)/5))*5,
+    mutate(x = round((day(Date)/5))*5,
            x = ifelse(x == 0, 1, x), 
-           date2 = paste(year(date), month(date), x, sep = "-")) |>
+           date2 = paste(year(Date), month(Date), x, sep = "-")) |>
+    rename(Date_orig = Date) |>
     mutate(Date = as.Date(date2)) |># must be named "Date" to work with the dataRetrieval function
     #seq along dates starting with the beginning of your water year
-    mutate(date2 = ifelse(is.na(Date), paste0(year(date), '-03-01'), date2)) |>
+    mutate(date2 = ifelse(is.na(Date), paste0(year(Date_orig), '-03-01'), date2)) |>
     mutate(Date = as.Date(date2)) |>
     mutate(CDate=as.Date(paste0(ifelse(month(Date) < 10, "1901", "1900"),
                                 "-", month(Date), "-", day(Date)))) |>
-    mutate(decade = ifelse(year(date) <= 1990, 1, NA),
+    mutate(decade = ifelse(year(Date_orig) <= 1990, 1, NA),
            # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
-           decade = ifelse(between(year(date), 1990, 2000), "1990-2000", decade),
-           decade = ifelse(between(year(date), 2001, 2007), "2001-2007 (Drought)", decade),
-           decade = ifelse(between(year(date), 2008, 2019), "2008-2019", decade)) |>
+           decade = ifelse(between(year(Date_orig), 1990, 2000), "1990-2000", decade),
+           decade = ifelse(between(year(Date_orig), 2001, 2007), "2001-2007 (Drought)", decade),
+           decade = ifelse(between(year(Date_orig), 2008, 2019), "2008-2019", decade)) |>
     mutate(decade = as.factor(decade)) |>
-    mutate(mon = month(date)) |> #and add seasons to the dataframe
-    # mutate(season = case_when(mon %in% c(10,11,12) ~ "Oct-Dec",
-    #                           mon %in% c(1,2,3) ~ "Jan-Mar",
-    #                           mon %in% c(4,5,6)  ~ "Apr-Jun",
-    #                           mon %in% c(7,8,9) ~ "Jul-Sep")) |>
-    # mutate(season = factor(season, levels = c('Oct-Dec','Jan-Mar','Apr-Jun','Jul-Sep'))) |>
-    mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
-                              mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                              mon %in% c(7,8,9,10) ~ "Summer")) |>
-    mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
     group_by(CDate, decade) |>
-    mutate(ave_weekly_nitrate = mean(Nitrate_mgl, na.rm = TRUE),
-           ave_weekly_dis = mean(discharge_rate, na.rm = TRUE)) |>
+    mutate(ave_weekly_nitrate = mean(nitrate_mgL, na.rm = TRUE),
+           ave_weekly_dis = mean(discharge_Ls, na.rm = TRUE)) |>
     ungroup() |>
     addWaterYear() |>
     select(CDate, decade, ave_weekly_nitrate, ave_weekly_dis, season) |>
@@ -65,16 +64,12 @@ hydro <- '#4D6BBC'
     geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
     theme_classic() +
     labs (x = '') +
-    #     labs(x = "",
-    #          caption = "Figure 3. Average weekly nitrate concentrations (red lines) and average weekly streamflow (blue lines) at the 
-    # Loch Vale outlet. Data represented by the dotted lines were collected in 1990-1999, data represented by the dashed 
-    # lines were collected between 2000-2009, and data represented by the solid lines were collected in 2010-2019.") +
     scale_y_continuous(
       # first axis
       name = "Average Weekly Nitrate "~(mg~L^-1),
       
       # second axis 
-      sec.axis = sec_axis(~./coef, name = "Average Weekly Streamflow "~(m^3~s^-1))
+      sec.axis = sec_axis(~./coef, name = "Average Weekly Streamflow "~(L~s^-1))
     )  +
     
     guides(linetype = guide_legend(override.aes = list(color = "black"))) +
@@ -127,7 +122,7 @@ hydro <- '#4D6BBC'
           text = element_text(family = 'serif'),
           axis.text = element_text(size = 8),
           axis.title = element_text(size =8))
-  
+  p2
   
   
   # cQ figure ####
@@ -156,7 +151,7 @@ hydro <- '#4D6BBC'
     scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     theme_classic() +
     labs(y = 'log10 nitrate'~(mg~L^-1),
-         x = 'log10 streamflow'~(m^3~s^-1))  +
+         x = 'log10 streamflow'~(L~s^-1))  +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
@@ -165,7 +160,7 @@ hydro <- '#4D6BBC'
     guides(fill = 'none') + 
     theme(legend.position = 'none') 
   
-  
+p3
   
 
   
@@ -207,19 +202,19 @@ p1+p2+p3+p4 +
 plot_annotation(tag_levels = 'a', tag_suffix = ')') +
 plot_layout(guides = 'collect', design = layout)
 
-ggsave("Figures/HCG_average_weekly_BREAKPOINT.png", width = 7.5, height = 5.5, dpi=1200)
+ggsave("Figures/LochVale/HCG_average_weekly_BREAKPOINT.png", width = 7.5, height = 5.5, dpi=1200)
   
 
 # look closer at winter 2008-2019
 lochvale_lateperiod <- lochvale |>
-  filter(year(date) > 2007) 
+  filter(year(Date) > 2007) 
 
 
 #mon %in% c(11,12,1,2,3) # winter months
 library(plotly)
 ggplotly(ggplot(lochvale_lateperiod) +
-  geom_line(aes(date, discharge_rate)))
+  geom_line(aes(Date, discharge_Ls)))
 
 ggplotly(ggplot(lochvale) +
-           geom_line(aes(date, Nitrate_mgl)))
+           geom_line(aes(Date, nitrate_mgL)))
   
