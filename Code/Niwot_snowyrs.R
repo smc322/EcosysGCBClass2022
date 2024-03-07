@@ -182,3 +182,96 @@ niwot_ave / niwot_snowyrs +
   plot_layout(guides = 'collect')
 
 ggsave("Figures/Niwot/HCG_average_snowyears.png", width = 7.5, height = 5.5, dpi=1200)
+
+
+
+# 6. cQ plot ####
+cq_wtryr_ave <- wtryr_ave |>
+  group_by(season) |>
+  filter(!is.infinite(log10(ave_weekly_dis)),
+         !is.infinite(log10(ave_weekly_nitrate))) |>
+  do({
+    mod = lm(log10(ave_weekly_nitrate) ~ log10(ave_weekly_dis), data = .)
+    data.frame(Intercept = coef(mod)[1],
+               Slope = coef(mod)[2],
+               SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2]),
+               CI.up = confint(mod, 'log10(ave_weekly_dis)', level=0.95)[2],
+               CI.down = confint(mod, 'log10(ave_weekly_dis)', level=0.95)[1]) 
+  }) |>
+  mutate(snowyr = 'average')
+
+cq_snowyrs <- snow_years |>
+  group_by(snowyr, season) |>
+  filter(!is.infinite(log10(discharge_Ls)),
+         !is.infinite(log10(nitrate_mgL))) |>
+  drop_na() |>
+  do({
+    mod = lm(log10(nitrate_mgL) ~ log10(discharge_Ls), data = .)
+    data.frame(Intercept = coef(mod)[1],
+               Slope = coef(mod)[2],
+               SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2]),
+               CI.up = confint(mod, 'log10(discharge_Ls)', level=0.95)[2],
+               CI.down = confint(mod, 'log10(discharge_Ls)', level=0.95)[1]) 
+  })
+
+
+cq_slopes <- rbind(cq_snowyrs, cq_wtryr_ave)
+
+
+szn_cols <- c("#7EA8C4","#EFD15E","#E6A0C4")
+
+
+# create an inset for the weird winter high snow year slope
+inset <- ggplot(cq_slopes |> filter(Slope < -2)) + # need to plot winter of high snow year separately
+  labs(x = "", y = "") +
+  geom_point(mapping = aes(x=Slope, y=season, shape = snowyr, fill = season, color = season),
+             size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
+  geom_errorbarh(mapping = aes(Slope, season, xmin=CI.down, xmax=CI.up, color = season, group = snowyr),
+                 height = 0.2, position=position_dodge(width=0.5)) +
+  scale_y_discrete(limits=rev) +
+  theme_bw() +
+  scale_shape_manual('', values = c(21,22,24)) +
+  scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  # guides(fill = 'none') + 
+  #theme(legend.position = 'none') +
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8),
+        axis.text.y = element_blank(),
+        legend.position = 'none')
+
+
+
+# rest of the data
+ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of high snow year separately
+  labs(x = "cQ slope", y = "") +
+  annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
+  annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
+  annotate("text", label = 'mobilization', x = 0.5, y = 0.2, size = 2,color = "black") +
+  annotate("text", label = 'dilution', x = -0.5, y = 0.2, size = 2,color = "black") +
+  geom_point(mapping = aes(x=Slope, y=season, shape = snowyr, fill = season, color = season),
+             size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
+  geom_errorbarh(mapping = aes(Slope, season, xmin=CI.down, xmax=CI.up, color = season, group = snowyr),
+                 height = 0.2, position=position_dodge(width=0.5)) +
+  scale_y_discrete(limits=rev) +
+  theme_classic() +
+  scale_shape_manual('', values = c(21,22,24)) +
+  scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  # guides(fill = 'none') + 
+  #theme(legend.position = 'none') +
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size =8),
+        axis.text.y = element_blank()) +
+  # add the inset here
+  annotation_custom(ggplotGrob(inset),
+                    ymin=2.25, ymax=3.5, xmin=-1.5, xmax=-0.5)
+
+
+ggsave("Figures/Niwot/niwot_cq.png", width = 6, height = 4, dpi=1200)
