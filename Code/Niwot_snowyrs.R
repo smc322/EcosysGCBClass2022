@@ -175,17 +175,8 @@ niwot_snowyrs <- ggplot((snow_years)) +
 niwot_snowyrs
 
 
-# 5. Combine HGC plots into nice figure ####
 
-niwot_ave / niwot_snowyrs +
-  plot_annotation(tag_levels = 'a', tag_suffix = ')') +
-  plot_layout(guides = 'collect')
-
-ggsave("Figures/Niwot/HCG_average_snowyears.png", width = 7.5, height = 5.5, dpi=1200)
-
-
-
-# 6. cQ plot ####
+# 5. cQ plot ####
 cq_wtryr_ave <- wtryr_ave |>
   group_by(season) |>
   filter(!is.infinite(log10(ave_weekly_dis)),
@@ -246,7 +237,7 @@ inset <- ggplot(cq_slopes |> filter(Slope < -2)) + # need to plot winter of high
 
 
 # rest of the data
-ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of high snow year separately
+cqplot <- ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of high snow year separately
   labs(x = "cQ slope", y = "") +
   annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
   annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
@@ -275,3 +266,17 @@ ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of high snow yea
 
 
 ggsave("Figures/Niwot/niwot_cq.png", width = 6, height = 4, dpi=1200)
+
+
+
+# 6. Combine HGC and cq plots into nice figure ####
+layout <- 
+  'AACC
+   BB##'
+
+niwot_ave + niwot_snowyrs + cqplot +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')') +
+  plot_layout(design=layout, guides = 'collect')
+
+ggsave("Figures/Niwot/combo_hcg_cq.png", width = 8.5, height = 6.5, dpi=1200)
+
