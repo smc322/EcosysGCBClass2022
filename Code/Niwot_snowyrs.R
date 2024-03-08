@@ -230,7 +230,7 @@ inset <- ggplot(cq_slopes |> filter(Slope < -2)) + # need to plot winter of high
                  height = 0.2, position=position_dodge(width=0.5)) +
   scale_y_discrete(limits=rev) +
   theme_bw() +
-  scale_shape_manual('', values = c(21,22,24)) +
+  scale_shape_manual('', values = 22) +
   scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   # guides(fill = 'none') + 
