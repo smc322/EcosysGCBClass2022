@@ -27,7 +27,8 @@ andrews <- read.csv('Data/macrosheds_andrews.csv') |>
   # add water year from dataRetrieval package
   addWaterYear() |>
   filter(waterYear < 2020) |> #only includes a few days in 2020
-  mutate(discharge_Ls = ifelse(discharge_Ls < 0, 0, discharge_Ls)) 
+  mutate(discharge_Ls = ifelse(discharge_Ls < 0, 0, discharge_Ls)) |>
+  mutate(site_code = ifelse(site_code == 'GSWS08','Watershed 8', 'Watershed 6'))
 
 
 ## 2 Plot raw data to compare sites ####
@@ -48,7 +49,7 @@ ggplot(log_years) +
             color = hydro) +
   geom_line(aes(Date, nitrate_mgL, linetype=site_code), color = nitr) +
   theme_classic() +
-  labs (x = '', title = 'Andrews - GSWS08 elevation 1182m, GSWS06 elevation 1029m') +
+  labs (x = '', title = 'Andrews - Watershed 8 elevation 1182m, Watershed 6 elevation 1029m') +
   scale_y_continuous(
     # first axis
     name = "Nitrate "~(mg~L^-1),
@@ -69,7 +70,7 @@ ggplot(log_years) +
   # add line at 1974
   geom_vline(xintercept= (as.Date("1974-01-01")),
              linetype=1, colour="grey50") +
-   annotate('text', label = 'GSWS06 logged 100% in 1974', x = as.Date("1977-08-15"), y = 0.12, size = 3, color = 'grey50') +
+   annotate('text', label = 'Watershed 6 logged 100% in 1974', x = as.Date("1977-08-15"), y = 0.12, size = 3, color = 'grey50') +
   scale_x_date(date_breaks = '1 year', date_labels = '%Y')
 
 ggsave('Figures/Andrews_logging_comparison.png',height=4.5,width=6.5,units='in',dpi=1200)

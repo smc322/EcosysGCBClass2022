@@ -1,5 +1,4 @@
-# Climate data LochVale
-
+# Climate figures
 library(tidyverse)
 library(readxl)
 

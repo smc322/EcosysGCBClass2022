@@ -25,12 +25,12 @@ read.csv('Data/LochValeClimate_IMERG_01302024/snowdepth_m_monthly_loch.csv', ski
   mutate(mon = as.factor(mon)) |>
   ggplot() +
   geom_bar(stat='identity', aes(mon, avesnow)) +
-  labs(x='Month', y='Average snowpack 1990-2019 (m)') +
+  labs(x='Month', y='Average snowpack 1980-2019 (m)') +
   theme_classic()
 # winter (snow increasing November-March)
 # snowmelt runoff (snow decreasing April-June)
 # summer (little to no snow July-October) 
-ggsave('Figures/LochVale_AndyGSWS08/snow_season_LochVALE.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
+# ggsave('Figures/LochVale_AndyGSWS08/snow_season_LochVALE.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
 
 
 ## 1b. Andrews ####

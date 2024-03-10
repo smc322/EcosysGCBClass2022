@@ -28,12 +28,12 @@ read.csv('Data/NiwotClimate_IMERG_02282024/snowdepth_m_monthly_niwot.csv', skip=
 # winter (snow increasing November-March)
 # snowmelt runoff (snow decreasing April-June)
 # summer (little to no snow July-October) 
-ggsave('Figures/Niwot/snow_season_NIWOT.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
+# ggsave('Figures/Niwot/snow_season_NIWOT.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
 
 
 
 ## 1a. Find high/low snow years - in 'water years' ####
-# Loch Vale
+# Niwot
 chk<- read.csv('Data/NiwotClimate_IMERG_02282024/snowdepth_m_monthly_niwot.csv', skip=7) |>
   rename(date=1,
          snowpack_m=2) |>
@@ -264,8 +264,8 @@ cqplot <- ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of hig
   annotation_custom(ggplotGrob(inset),
                     ymin=2.25, ymax=3.5, xmin=-1.5, xmax=-0.5)
 
-
-ggsave("Figures/Niwot/niwot_cq.png", width = 6, height = 4, dpi=1200)
+# 
+# ggsave("Figures/Niwot/niwot_cq.png", width = 6, height = 4, dpi=1200)
 
 
 
