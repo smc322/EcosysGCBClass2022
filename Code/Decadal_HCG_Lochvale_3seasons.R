@@ -22,7 +22,13 @@ hydro <- '#4D6BBC'
     mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
                               mon %in% c(4,5,6)  ~ "Snowmelt runoff",
                               mon %in% c(7,8,9,10) ~ "Summer")) |>
-    mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer')))
+    mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer')))  |>
+    mutate(decade = ifelse(year(Date) <= 1990, 1, NA),
+           # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
+           decade = ifelse(between(year(Date), 1990, 2000), "1990-2000", decade),
+           decade = ifelse(between(year(Date), 2001, 2007), "2001-2007 (Drought)", decade),
+           decade = ifelse(between(year(Date), 2008, 2019), "2008-2019", decade)) |>
+    mutate(decade = as.factor(decade))
   
   # format data into weekly averages, per decade and organized by water year ####
   
@@ -87,8 +93,8 @@ hydro <- '#4D6BBC'
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
-          axis.text = element_text(size = 8),
-          axis.title = element_text(size =8))
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size =9))
   
   p1
   
@@ -112,7 +118,7 @@ hydro <- '#4D6BBC'
     theme(plot.caption.position = "plot",
           plot.caption = element_text(hjust = 0),
           legend.title = element_blank())+
-    #legend.position = c(0.1,0.8)) +
+    #legend.position = c(0.1,0.9)) +
     scale_x_date(labels = date_format('%b')) +
     scale_linetype_manual(values = c(3, 2, 1)) +
     geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01'))),
@@ -120,8 +126,9 @@ hydro <- '#4D6BBC'
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
-          axis.text = element_text(size = 8),
-          axis.title = element_text(size =8))
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size =9),
+          legend.position='none')
   p2
   
   
@@ -150,13 +157,13 @@ hydro <- '#4D6BBC'
     scale_fill_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     scale_color_manual('',values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     theme_classic() +
-    labs(y = 'log10 nitrate'~(mg~L^-1),
-         x = 'log10 streamflow'~(L~s^-1))  +
+    labs(y = 'log10 nitrate',
+         x = 'log10 streamflow')  +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
-          axis.text = element_text(size = 8),
-          axis.title = element_text(size =8)) +
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size =9)) +
     guides(fill = 'none') + 
     theme(legend.position = 'none') 
   
@@ -188,24 +195,66 @@ p3
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
           text = element_text(family = 'serif'),
-          axis.text = element_text(size = 8),
-          axis.title = element_text(size =8),
-          axis.text.y = element_blank())
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size =9),
+          axis.text.y = element_blank(),
+          legend.position='none')
+p4
   
-  
+# Flow duration curves ####
+
+## text below, code, and instructions from: https://vt-hydroinformatics.github.io/Quarto_Book/09-Flow_Duration_Curves.html#plot-a-flow-duration-curve-using-the-probabilities
+
+## Exceedence probability (P), Probability a flow is equaled or exceeded: P=100*[M/(n+1)]
+## M = Ranked position of the flow n = total number of observations in data record
+
+# Here’s a description of what we will do: > Pass our Qdat data to mutate and create a new column that is equal to the ranks of the discharge column. > Then pass that result to mutate again and create another column equal exceedence probability (P) * 100, which will give us %.
+
+#Flow is negative in rank() to make 
+#high flows ranked low (#1)
+Qdat <- lochvale |>
+  filter(decade != 1) |>
+  group_by(decade, season) |>
+  mutate(rank = rank(-discharge_Ls)) |>
+  mutate(P = 100 * (rank / (length(discharge_Ls) + 1))) |>
+  ungroup()
+
+## Now construct the following plot: A line with P on the x axis and flow on the y axis. Name the x axis “% Time flow equaled or exceeded” and log the y axis.
+
+p5 <- Qdat |> ggplot(aes(x = P, y = discharge_Ls, color = season, linetype =decade))+
+  geom_line()+
+  scale_y_log10()+
+  xlab("% Time flow equalled or exceeded")+
+  ylab("Streamflow"~(L~s^-1)) +
+  scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+  scale_linetype_manual('',values = c(3, 2, 1)) +
+  theme_classic() +
+  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+                                  hjust = 0.5),
+        text = element_text(family = 'serif'),
+        axis.text = element_text(size = 9),
+        axis.title = element_text(size =9),
+        legend.position='none')
+
+p5
+
+# Format multi-panel figure ####
+
 layout = '
-AB
-CD'
+AAABBB
+CCDDEE '
 
 
-p1+p2+p3+p4 +
-plot_annotation(tag_levels = 'a', tag_suffix = ')') +
-plot_layout(guides = 'collect', design = layout)
+(p1+p2+p3+p4+p5) +
+  plot_annotation(tag_levels = 'a', tag_suffix = ')') +
+  plot_layout(guides = 'collect', design = layout)
 
-ggsave("Figures/LochVale/HCG_average_weekly_BREAKPOINT.png", width = 7.5, height = 5.5, dpi=1200)
-  
+ggsave("Figures/LochVale/HCG_average_weekly_BREAKPOINT.png", width = 8, height = 6, dpi=1200)
 
-# look closer at winter 2008-2019
+
+
+
+# look closer at winter 2008-2019 ####
 lochvale_lateperiod <- lochvale |>
   filter(year(Date) > 2007) 
 
@@ -213,8 +262,7 @@ lochvale_lateperiod <- lochvale |>
 #mon %in% c(11,12,1,2,3) # winter months
 library(plotly)
 ggplotly(ggplot(lochvale_lateperiod) +
-  geom_line(aes(Date, discharge_Ls)))
+           geom_line(aes(Date, discharge_Ls)))
 
 ggplotly(ggplot(lochvale) +
            geom_line(aes(Date, nitrate_mgL)))
-  
