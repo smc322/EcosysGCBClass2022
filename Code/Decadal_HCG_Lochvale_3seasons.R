@@ -51,7 +51,7 @@ hydro <- '#4D6BBC'
     select(CDate, decade, ave_weekly_nitrate, ave_weekly_dis, season) |>
     distinct() |>
     mutate(date = CDate) |>
-    rename(discharge_rate = ave_weekly_dis) # renamed to work with pre-written plot code
+    rename(discharge_rate = ave_weekly_dis) # renamed to work with plot code
   
   
   #timeseries ####

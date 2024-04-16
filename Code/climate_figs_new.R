@@ -5,26 +5,30 @@ library(dataRetrieval)
 library(scales)
 library(patchwork)
 
-# 1. Determine seasons using average monthly snowpack data 1980-2019 ####
+# 1. Determine seasons using average monthly snow depth data 1980-2019 ####
 ## 1a. Loch Vale ####
 lv_szn <- read.csv('Data/LochValeClimate_IMERG_01302024/snowdepth_m_monthly_loch.csv', skip=7) |>
   rename(date=1,
          snowpack_m=2) |>
-  mutate(date=as.Date(date)) |>
-  mutate(mon = month(date),
-         Year = year(date)) |>
-  group_by(mon) |>
+  mutate(Date=as.Date(date)) |>
+  mutate(mon = month(Date),
+         Year = year(Date)) |>
+  addWaterYear() |>
+  #seq along dates starting with the beginning of your water year
+  mutate(CDate=as.Date(paste0(ifelse(mon < 10, "1901", "1900"),
+                              "-", mon, "-1"))) |>
+  group_by(CDate) |>
   summarise(avesnow = mean(snowpack_m)) |>
   ungroup() |>
-  mutate(mon = as.factor(mon)) |>
   ggplot() +
-  geom_bar(stat='identity', aes(mon, avesnow)) +
+  geom_bar(stat='identity', aes(CDate, avesnow)) +
   labs(x='', y='',
        title = 'Loch Vale') +
   theme_classic() +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(family = 'serif')) +
+  scale_x_date(labels = date_format('%b'))
 # winter (snow increasing November-March)
 # snowmelt runoff (snow decreasing April-June)
 # summer (little to no snow July-October) 
@@ -34,21 +38,25 @@ lv_szn <- read.csv('Data/LochValeClimate_IMERG_01302024/snowdepth_m_monthly_loch
 niwot_szn <- read.csv('Data/NiwotClimate_IMERG_02282024/snowdepth_m_monthly_niwot.csv', skip=7) |>
   rename(date=1,
          snowpack_m=2) |>
-  mutate(date=as.Date(date)) |>
-  mutate(mon = month(date),
-         Year = year(date)) |>
-  group_by(mon) |>
+  mutate(Date=as.Date(date)) |>
+  mutate(mon = month(Date),
+         Year = year(Date)) |>
+  addWaterYear() |>
+  #seq along dates starting with the beginning of your water year
+  mutate(CDate=as.Date(paste0(ifelse(mon < 10, "1901", "1900"),
+                              "-", mon, "-1"))) |>
+  group_by(CDate) |>
   summarise(avesnow = mean(snowpack_m)) |>
   ungroup() |>
-  mutate(mon = as.factor(mon)) |>
   ggplot() +
-  geom_bar(stat='identity', aes(mon, avesnow)) +
-  labs(x='', y='Average snowpack 1980-2019 (m)',
+  geom_bar(stat='identity', aes(CDate, avesnow)) +
+  labs(x='', y='Mean snow depth 1980-2019 (m)',
        title='Niwot Ridge') +
   theme_classic() +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(family = 'serif')) +
+  scale_x_date(labels = date_format('%b'))
 # winter (snow increasing November-March)
 # snowmelt runoff (snow decreasing April-June)
 # summer (little to no snow July-October) 
@@ -58,21 +66,25 @@ niwot_szn <- read.csv('Data/NiwotClimate_IMERG_02282024/snowdepth_m_monthly_niwo
 andy_szn<-read.csv('Data/AndrewsClimate_IMERG_01302024/snowdepth_m_monthly_andy.csv', skip=7) |>
   rename(date=1,
          snowpack_m=2) |>
-  mutate(date=as.Date(date)) |>
-  mutate(mon = month(date),
-         Year = year(date)) |>
-  group_by(mon) |>
+  mutate(Date=as.Date(date)) |>
+  mutate(mon = month(Date),
+         Year = year(Date)) |>
+  addWaterYear() |>
+  #seq along dates starting with the beginning of your water year
+  mutate(CDate=as.Date(paste0(ifelse(mon < 10, "1901", "1900"),
+                              "-", mon, "-1"))) |>
+  group_by(CDate) |>
   summarise(avesnow = mean(snowpack_m)) |>
   ungroup() |>
-  mutate(mon = as.factor(mon)) |>
   ggplot() +
-  geom_bar(stat='identity', aes(mon, avesnow)) +
+  geom_bar(stat='identity', aes(CDate, avesnow)) +
   labs(x='Month', y='',
        title = 'Andrews Forest') +
   theme_classic() +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(family = 'serif')) +
+  scale_x_date(labels = date_format('%b'))
 # winter (snow increasing December-February)
 # snowmelt runoff (snow decreasing March-April)
 # summer (little to no snow May-November) 
