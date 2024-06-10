@@ -125,7 +125,7 @@ niwot_ave <- ggplot((wtryr_ave)) +
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
-  geom_vline(xintercept= c(as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
+  geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")),as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
              linetype=4, colour="grey50") +
   # annotate('text', label = 'snowmelt runoff', x = as.Date("1901-05-15"), y = 0.05, size = 3, color = 'grey50') +
   scale_x_date(labels = date_format('%b'))
@@ -168,7 +168,7 @@ niwot_snowyrs <- ggplot((snow_years)) +
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
-  geom_vline(xintercept= c(as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
+  geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")),as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
              linetype=4, colour="grey50") +
   # annotate('text', label = 'snowmelt runoff', x = as.Date("1901-05-15"), y = 0.05, size = 3, color = 'grey50') +
   scale_x_date(labels = date_format('%b'))
