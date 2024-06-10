@@ -104,8 +104,8 @@ hydro <- '#4D6BBC'
     arrange(decade, date) |>
     group_by(decade) |>
     mutate(timestep = as.numeric(difftime(date, lag(date)), units="secs")) |> #timestep in seconds
-    mutate(massMg = (ave_weekly_nitrate * discharge_rate * timestep)/1000000) |>
-    mutate(cum_sum = cumsum(ifelse(is.na(massMg), 0, massMg))) |>
+    mutate(masskg = (ave_weekly_nitrate * discharge_rate * timestep)/1000000) |>
+    mutate(cum_sum = cumsum(ifelse(is.na(masskg), 0, masskg))) |>
     ungroup()
   
   
@@ -113,7 +113,7 @@ hydro <- '#4D6BBC'
     geom_line(aes(date, cum_sum, linetype = decade)) +
     #geom_line(aes(date, ave_weekly_nitrate, linetype = decade), color = nitr) +
     theme_classic() +
-    labs(x = '', y = 'Cumulative sum nitrate (Mg)') +
+    labs(x = '', y = 'Cumulative sum nitrate (kg)') +
     guides(linetype = guide_legend(override.aes = list(color = "black"))) +
     theme(plot.caption.position = "plot",
           plot.caption = element_text(hjust = 0),
