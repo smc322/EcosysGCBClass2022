@@ -4,6 +4,8 @@ library(lubridate)
 library(dataRetrieval)
 library(scales)
 library(patchwork)
+library(mcp)
+library(readxl)
 
 # 1. Determine seasons using average monthly snow depth data 1980-2019 ####
 ## 1a. Loch Vale ####
@@ -363,3 +365,5 @@ lv_snow/niwot_snow +
   plot_annotation(tag_levels = 'a', tag_suffix = ')')
 
 ggsave('Figures/snowpack_plot.png', dpi=1200, units='in', height=6.5, width=8.5)
+
+
