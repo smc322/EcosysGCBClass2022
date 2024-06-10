@@ -161,7 +161,7 @@ LV_temp_inc <- ggplot(LV_summerslope, aes(Year, average_seasonal_temp)) +
        y='',
        title = 'Loch Vale - summer') +
   theme_classic() +
-  annotate('text', x=2015, y=13.5, label = 'p-value < 0.05; slope = 0.037') +
+  annotate('text', x=2015, y=13.5, label = 'p-value < 0.05; slope = 0.029') +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
         text = element_text(family = 'serif'))
@@ -225,7 +225,7 @@ niwot_temp_inc <- ggplot(niwot_summerslope, aes(Year, average_seasonal_temp)) +
        y='',
        title = 'Niwot Ridge - summer') +
   theme_classic() +
-  annotate('text', x=2015, y=13.5, label = 'p-value < 0.01; slope = 0.030') +
+  annotate('text', x=2015, y=13.5, label = 'p-value < 0.01; slope = 0.032') +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
         text = element_text(family = 'serif'))
@@ -288,7 +288,7 @@ andy_summer <- ggplot(andy_summerslope, aes(Year, average_seasonal_temp)) +
   labs(x='', y='',
        title='Andrews Forest - summer') +
   theme_classic() +
-  annotate('text', x=2010, y=12.5, label = 'p-value < 0.0001; slope = 0.061')  +
+  annotate('text', x=2015, y=13.5, label = 'p-value < 0.0001; slope = 0.048')  +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
         text = element_text(family = 'serif'))
