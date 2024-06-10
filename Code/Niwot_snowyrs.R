@@ -11,45 +11,45 @@ library(patchwork)
 
 
 # 1. Determine seasons using average monthly snowpack data 1980-2019 ####
-read.csv('Data/NiwotClimate_IMERG_02282024/snowdepth_m_monthly_niwot.csv', skip=7) |>
+read.csv('Data/NiwotClimate_IMERG_02282024/SWE_kgm2_monthly_niwot.csv', skip=7) |>
   rename(date=1,
-         snowpack_m=2) |>
+         SWE_kgm2=2) |>
   mutate(date=as.Date(date)) |>
   mutate(mon = month(date),
          Year = year(date)) |>
   group_by(mon) |>
-  summarise(avesnow = mean(snowpack_m)) |>
+  summarise(avesnow = mean(SWE_kgm2)) |>
   ungroup() |>
   mutate(mon = as.factor(mon)) |>
   ggplot() +
   geom_bar(stat='identity', aes(mon, avesnow)) +
   labs(x='Month', y='Average snowpack 1990-2019 (m)') +
   theme_classic()
-# winter (snow increasing November-March)
-# snowmelt runoff (snow decreasing April-June)
-# summer (little to no snow July-October) 
+# winter (snow increasing November-May)
+# snowmelt runoff (snow decreasing June-July)
+# summer (little to no snow August-October) 
 # ggsave('Figures/Niwot/snow_season_NIWOT.png', height = 4.5, width = 6.5, units = 'in', dpi=1200)
 
 
 
 ## 1a. Find high/low snow years - in 'water years' ####
 # Niwot
-chk<- read.csv('Data/NiwotClimate_IMERG_02282024/snowdepth_m_monthly_niwot.csv', skip=7) |>
+chk<- read.csv('Data/NiwotClimate_IMERG_02282024/SWE_kgm2_monthly_niwot.csv', skip=7) |>
   rename(date=1,
-         snowpack_m=2) |>
+         SWE_kgm2=2) |>
   mutate(Date=as.Date(date)) |>
   addWaterYear() |>
   filter(waterYear < 2020) |> #only includes a few days in 2020
   group_by(waterYear) |>
-  reframe(Tot_snow = sum(snowpack_m)) |>
+  reframe(Tot_snow = sum(SWE_kgm2)) |>
   mutate(mean_snow = mean(Tot_snow),
          min_snow = min(Tot_snow)) |>
   ggplot() +
   geom_bar(stat='identity', aes(waterYear, Tot_snow)) +
   labs(x='Year', y='Total snowpack (m)') +
   theme_classic() 
-# 2011 is highest snow year (8.189045m)
-# lowest snow year is 1981 - but we don't have stream data that year - using lowest snow year on record after 1986 (when data starts): 1991 (2.695854m)
+# 2011 is highest snow year (2121.7083 kg/m2)
+# lowest snow year is 1981 - but we don't have stream data that year - using lowest snow year on record after 1986 (when data starts): 1991 (464.9719 kg/m2)
 
 
 # 2. Read in stream data and add seasons ####
@@ -60,9 +60,9 @@ niwot <- read.csv('Data/macrosheds_niwot.csv') |>
   # add seasons to the dataframe (based on snow depth data)
   # add seasons to the dataframe (based on snow depth data)
   mutate(mon = month(Date)) |>
-  mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
-                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                            mon %in% c(7,8,9,10) ~ "Summer")) |>
+  mutate(season = case_when(mon %in% c(12,1,2,3,4,5) ~ "Winter",
+                            mon %in% c(6,7)  ~ "Snowmelt runoff",
+                            mon %in% c(8,9,10,11) ~ "Summer")) |>
   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
   # add water year from dataRetrieval package
   addWaterYear() |>
@@ -125,7 +125,7 @@ niwot_ave <- ggplot((wtryr_ave)) +
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
-  geom_vline(xintercept= c(as.numeric(as.Date("1901-04-01")), as.numeric(as.Date('1901-07-01'))),
+  geom_vline(xintercept= c(as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
              linetype=4, colour="grey50") +
   # annotate('text', label = 'snowmelt runoff', x = as.Date("1901-05-15"), y = 0.05, size = 3, color = 'grey50') +
   scale_x_date(labels = date_format('%b'))
@@ -189,7 +189,9 @@ cq_wtryr_ave <- wtryr_ave |>
                CI.up = confint(mod, 'log10(ave_weekly_dis)', level=0.95)[2],
                CI.down = confint(mod, 'log10(ave_weekly_dis)', level=0.95)[1]) 
   }) |>
-  mutate(snowyr = 'average')
+  mutate(snowyr = 'average') |>
+  as.data.frame() |>
+  ungroup()
 
 cq_snowyrs <- snow_years |>
   group_by(snowyr, season) |>
@@ -203,7 +205,9 @@ cq_snowyrs <- snow_years |>
                SE = as.numeric((coef(summary(mod))[, "Std. Error"])[2]),
                CI.up = confint(mod, 'log10(discharge_Ls)', level=0.95)[2],
                CI.down = confint(mod, 'log10(discharge_Ls)', level=0.95)[1]) 
-  })
+  }) |>
+  as.data.frame() |>
+  ungroup()
 
 
 cq_slopes <- rbind(cq_snowyrs, cq_wtryr_ave)
@@ -212,37 +216,37 @@ cq_slopes <- rbind(cq_snowyrs, cq_wtryr_ave)
 szn_cols <- c("#7EA8C4","#EFD15E","#E6A0C4")
 
 
-# create an inset for the weird winter high snow year slope
-inset <- ggplot(cq_slopes |> filter(Slope < -2)) + # need to plot winter of high snow year separately
-  labs(x = "", y = "") +
-  geom_point(mapping = aes(x=Slope, y=season, shape = snowyr, fill = season, color = season),
-             size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
-  geom_errorbarh(mapping = aes(Slope, season, xmin=CI.down, xmax=CI.up, color = season, group = snowyr),
-                 height = 0.2, position=position_dodge(width=0.5)) +
-  scale_y_discrete(limits=rev) +
-  theme_bw() +
-  scale_shape_manual('', values = 22) +
-  scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
-  scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
-  # guides(fill = 'none') + 
-  #theme(legend.position = 'none') +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
-                                  hjust = 0.5),
-        text = element_text(family = 'serif'),
-        axis.text = element_text(size = 8),
-        axis.title = element_text(size =8),
-        axis.text.y = element_blank(),
-        legend.position = 'none')
-
+# # create an inset for the weird winter high snow year slope
+# inset <- ggplot(cq_slopes |> filter(Slope < -1)) + # need to plot winter of high snow year separately
+#   labs(x = "", y = "") +
+#   geom_point(mapping = aes(x=Slope, y=season, shape = snowyr, fill = season, color = season),
+#              size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
+#   geom_errorbarh(mapping = aes(Slope, season, xmin=CI.down, xmax=CI.up, color = season, group = snowyr),
+#                  height = 0.2, position=position_dodge(width=0.5)) +
+#   scale_y_discrete(limits=rev) +
+#   theme_bw() +
+#   scale_shape_manual('', values = 22) +
+#   scale_fill_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+#   scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
+#   # guides(fill = 'none') + 
+#   #theme(legend.position = 'none') +
+#   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+#                                   hjust = 0.5),
+#         text = element_text(family = 'serif'),
+#         axis.text = element_text(size = 8),
+#         axis.title = element_text(size =8),
+#         axis.text.y = element_blank(),
+#         legend.position = 'none')
+# inset
 
 
 # rest of the data
-cqplot <- ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of high snow year separately
+cqplot <- ggplot(cq_slopes) + 
   labs(x = "cQ slope", y = "") +
   annotate("rect", xmin = -0.05, xmax = 0.05, ymin = 0, ymax = Inf, alpha = 0.2, color = "grey") +
-  annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2,color = "black") +
-  annotate("text", label = 'mobilization', x = 0.5, y = 0.2, size = 2,color = "black") +
-  annotate("text", label = 'dilution', x = -0.5, y = 0.2, size = 2,color = "black") +
+  annotate("text", label = 'chemostatic', x = 0, y = 0.2, size = 2.5,color = "black") +
+  annotate("text", label = 'mobilization', x = 2, y = 0.2, size = 2.5,color = "black") +
+  annotate("text", label = 'dilution', x = -2, y = 0.2, size = 2.5,color = "black") +
   geom_point(mapping = aes(x=Slope, y=season, shape = snowyr, fill = season, color = season),
              size = 2.5, alpha = 0.7, position = position_dodge(width=0.5)) +
   geom_errorbarh(mapping = aes(Slope, season, xmin=CI.down, xmax=CI.up, color = season, group = snowyr),
@@ -259,10 +263,10 @@ cqplot <- ggplot(cq_slopes |> filter(Slope > -2)) + # need to plot winter of hig
         text = element_text(family = 'serif'),
         axis.text = element_text(size = 8),
         axis.title = element_text(size =8),
-        axis.text.y = element_blank()) +
+        axis.text.y = element_blank()) 
   # add the inset here
-  annotation_custom(ggplotGrob(inset),
-                    ymin=2.25, ymax=3.5, xmin=-1.5, xmax=-0.5)
+  # annotation_custom(ggplotGrob(inset),
+  #                   ymin=2.25, ymax=3.5, xmin=-1.5, xmax=-0.5)
 
 # 
 # ggsave("Figures/Niwot/niwot_cq.png", width = 6, height = 4, dpi=1200)

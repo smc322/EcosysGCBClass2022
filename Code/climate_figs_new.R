@@ -108,9 +108,9 @@ LV_temp <- read.csv('Data/LochValeClimate_IMERG_01302024/surfaceairtemp_C_monthl
   mutate(date=as.Date(date),
          Year=year(date)) |>
   mutate(mon = month(date)) |> 
-  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
-                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                            mon %in% c(7,8,9) ~ "Summer")) |>
+  mutate(season = case_when(mon %in% c(12,1,2,3,4) ~ "Winter",
+                            mon %in% c(5,6)  ~ "Snowmelt runoff",
+                            mon %in% c(7,8,9,10,11) ~ "Summer")) |>
   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
   group_by(Year, season) |>
   mutate(average_seasonal_temp = mean(temp)) |>
@@ -138,7 +138,7 @@ temp_annual_LV <- LV_temp |>
 ## looks like there might be a trend so let's test ####
 ### Mann-Kendall test ####
 mk.model <- trend::mk.test((temp_annual_LV |> filter(season=='Summer'))$average_seasonal_temp)
-mk.model # p == 0.01
+mk.model # p == 0.015
 
 mk.model <- trend::mk.test((temp_annual_LV |> filter(season=='Snowmelt runoff'))$average_seasonal_temp)
 mk.model # p > 0.05
@@ -172,9 +172,9 @@ niwot_temp <- read.csv('Data/NiwotClimate_IMERG_02282024/surfaceairtemp_C_monthl
   mutate(date=as.Date(date),
          Year=year(date)) |>
   mutate(mon = month(date)) |> 
-  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
-                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                            mon %in% c(7,8,9) ~ "Summer")) |>
+  mutate(season = case_when(mon %in% c(12,1,2,3,4,5) ~ "Winter",
+                            mon %in% c(6,7)  ~ "Snowmelt runoff",
+                            mon %in% c(8,9,10,11) ~ "Summer")) |>
   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
   group_by(Year, season) |>
   mutate(average_seasonal_temp = mean(temp)) |>
@@ -202,7 +202,7 @@ niwot_temp_annual <- niwot_temp |>
 ## looks like there might be a trend so let's test ####
 ### Mann-Kendall test ####
 mk.model <- trend::mk.test((niwot_temp_annual |> filter(season=='Summer'))$average_seasonal_temp)
-mk.model # p == 0.01225
+mk.model # p == 0.005757
 
 mk.model <- trend::mk.test((niwot_temp_annual |> filter(season=='Snowmelt runoff'))$average_seasonal_temp)
 mk.model #p >0.05
@@ -223,7 +223,7 @@ niwot_temp_inc <- ggplot(niwot_summerslope, aes(Year, average_seasonal_temp)) +
        y='',
        title = 'Niwot Ridge - summer') +
   theme_classic() +
-  annotate('text', x=2015, y=13.5, label = 'p-value < 0.05; slope = 0.030') +
+  annotate('text', x=2015, y=13.5, label = 'p-value < 0.01; slope = 0.030') +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
         text = element_text(family = 'serif'))
@@ -236,9 +236,9 @@ andy_temp <- read.csv('Data/AndrewsClimate_IMERG_01302024/surfaceairtemp_C_month
   mutate(date=as.Date(date),
          Year=year(date)) |>
   mutate(mon = month(date)) |> 
-  mutate(season = case_when(mon %in% c(10,11,12,1,2,3) ~ "Winter",
-                            mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                            mon %in% c(7,8,9) ~ "Summer")) |>
+  mutate(season = case_when(mon %in% c(12,1,2) ~ "Winter",
+                            mon %in% c(3,4)  ~ "Snowmelt runoff",
+                            mon %in% c(5,6,7,8,9,10,11) ~ "Summer")) |>
   mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer'))) |>
   group_by(Year, season) |>
   mutate(average_seasonal_temp = mean(temp)) |>
@@ -266,10 +266,10 @@ andy_temp_annual <- andy_temp |>
 ## looks like there might be a trend so let's test ####
 ### Mann-Kendall test ####
 mk.model <- trend::mk.test((andy_temp_annual |> filter(season=='Summer'))$average_seasonal_temp)
-mk.model # p == 4.323e-05
+mk.model # p == 2.599e-05
 
 mk.model <- trend::mk.test((andy_temp_annual |> filter(season=='Snowmelt runoff'))$average_seasonal_temp)
-mk.model #p == 0.02309
+mk.model #p >0.05
 
 mk.model <- trend::mk.test((andy_temp_annual |> filter(season=='Winter'))$average_seasonal_temp)
 mk.model # p > 0.05
@@ -292,24 +292,24 @@ andy_summer <- ggplot(andy_summerslope, aes(Year, average_seasonal_temp)) +
         text = element_text(family = 'serif'))
 
 
-andy_snowmeltslope <- andy_temp_annual |> filter(season=='Snowmelt runoff')
-sen.model <- zyp::zyp.sen(average_seasonal_temp ~ Year, andy_snowmeltslope)
-coef(sen.model)
-
-andy_snowmelt <- ggplot(andy_snowmeltslope, aes(Year, average_seasonal_temp)) +
-  geom_point() +
-  geom_abline(intercept = coef(sen.model)[[1]], 
-              slope = coef(sen.model)[[2]], color = '#EFD15E') +
-  labs(x='', y='', title='Andrews Forest - snowmelt runoff') +
-  theme_classic() +
-  annotate('text', x=2005, y=9.5, label = 'p-value < 0.05; slope = 0.039')  +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
-                                  hjust = 0.5),
-        text = element_text(family = 'serif'))
+# andy_snowmeltslope <- andy_temp_annual |> filter(season=='Snowmelt runoff')
+# sen.model <- zyp::zyp.sen(average_seasonal_temp ~ Year, andy_snowmeltslope)
+# coef(sen.model)
+# 
+# andy_snowmelt <- ggplot(andy_snowmeltslope, aes(Year, average_seasonal_temp)) +
+#   geom_point() +
+#   geom_abline(intercept = coef(sen.model)[[1]], 
+#               slope = coef(sen.model)[[2]], color = '#EFD15E') +
+#   labs(x='', y='', title='Andrews Forest - snowmelt runoff') +
+#   theme_classic() +
+#   annotate('text', x=2005, y=9.5, label = 'p-value < 0.05; slope = 0.039')  +
+#   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+#                                   hjust = 0.5),
+#         text = element_text(family = 'serif'))
 
 
 # 2d. Patchwork airtemp plots ####
-LV_temp_inc/niwot_temp_inc/andy_snowmelt/andy_summer +
+LV_temp_inc/niwot_temp_inc/andy_summer +
   plot_annotation(tag_levels = 'a', tag_suffix = ')')
 
 

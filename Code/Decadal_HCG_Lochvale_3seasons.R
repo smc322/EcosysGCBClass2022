@@ -19,9 +19,9 @@ hydro <- '#4D6BBC'
     mutate(site_code = 'LochVale') |>
     # add seasons to the dataframe (based on snow depth data)
     mutate(mon = month(Date)) |>
-    mutate(season = case_when(mon %in% c(11,12,1,2,3) ~ "Winter",
-                              mon %in% c(4,5,6)  ~ "Snowmelt runoff",
-                              mon %in% c(7,8,9,10) ~ "Summer")) |>
+    mutate(season = case_when(mon %in% c(12,1,2,3,4) ~ "Winter",
+                              mon %in% c(5,6)  ~ "Snowmelt runoff",
+                              mon %in% c(7,8,9,10,11) ~ "Summer")) |>
     mutate(season = factor(season, levels = c('Winter','Snowmelt runoff','Summer')))  |>
     mutate(decade = ifelse(year(Date) <= 1990, 1, NA),
            # BASED ON MCMC changepoint analysis in PDSI_fig.R :) -- the time periods should be split like this!!
@@ -88,7 +88,7 @@ hydro <- '#4D6BBC'
           legend.position = 'none') +
     scale_x_date(labels = date_format('%b')) +
     scale_linetype_manual(values = c(3, 2, 1)) +
-    geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01'))),
+    geom_vline(xintercept= c(as.numeric(as.Date("1900-12-01")), as.numeric(as.Date('1901-05-01')), as.numeric(as.Date('1901-07-01'))),
                linetype=4, colour="grey") +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
