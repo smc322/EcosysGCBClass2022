@@ -92,7 +92,7 @@ hydro <- '#4D6BBC'
                linetype=4, colour="grey") +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
-          text = element_text(family = 'serif'),
+           
           axis.text = element_text(size = 9),
           axis.title = element_text(size =9))
   
@@ -125,7 +125,7 @@ hydro <- '#4D6BBC'
                linetype=4, colour="grey") +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
-          text = element_text(family = 'serif'),
+           
           axis.text = element_text(size = 9),
           axis.title = element_text(size =9),
           legend.position='none')
@@ -161,7 +161,7 @@ hydro <- '#4D6BBC'
          x = 'log10 streamflow')  +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
-          text = element_text(family = 'serif'),
+           
           axis.text = element_text(size = 9),
           axis.title = element_text(size =9)) +
     guides(fill = 'none') + 
@@ -194,7 +194,7 @@ p3
     #theme(legend.position = 'none') +
     theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                     hjust = 0.5),
-          text = element_text(family = 'serif'),
+           
           axis.text = element_text(size = 9),
           axis.title = element_text(size =9),
           axis.text.y = element_blank(),
@@ -231,7 +231,7 @@ p5 <- Qdat |> ggplot(aes(x = P, y = discharge_Ls, color = season, linetype =deca
   theme_classic() +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'),
+         
         axis.text = element_text(size = 9),
         axis.title = element_text(size =9),
         legend.position='none')

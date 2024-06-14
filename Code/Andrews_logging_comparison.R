@@ -64,7 +64,7 @@ rawdata <- ggplot(log_years) +
         legend.title = element_blank()) +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'),
+         
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9),
         legend.position = c(0.75,0.75)) +
@@ -119,7 +119,7 @@ diffplot <- ggplot(difference_flux) +
   scale_x_date(date_breaks = '1 year', date_labels = '%Y') +
   theme_classic() +
   labs(x='', y='Difference in nitrate flux'~(kg~ha^-1~day^-1)) +
-  theme(text = element_text(family = 'serif'),
+  theme( 
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9))
 
@@ -145,7 +145,7 @@ ggsave('Figures/Andrews_compare.png', width = 6.5, height = 4.5, dpi=1200)
 #   theme_minimal()+
 #   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
 #                                   hjust = 0.5),
-#         text = element_text(family = 'serif'),
+#          
 #         axis.text = element_text(size = 8),
 #         axis.title = element_text(size =8),
 #         legend.position = 'none')
@@ -161,7 +161,7 @@ ggsave('Figures/Andrews_compare.png', width = 6.5, height = 4.5, dpi=1200)
 #   theme_minimal()+
 #   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
 #                                   hjust = 0.5),
-#         text = element_text(family = 'serif'),
+#          
 #         axis.text = element_text(size = 8),
 #         axis.title = element_text(size =8),
 #         legend.position = 'none')
@@ -178,7 +178,7 @@ ggsave('Figures/Andrews_compare.png', width = 6.5, height = 4.5, dpi=1200)
 #   theme_bw()+
 #   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
 #                                   hjust = 0.5),
-#         text = element_text(family = 'serif'),
+#          
 #         axis.text = element_text(size = 8),
 #         axis.title = element_text(size =8)) +
 #   # bring out high snow years

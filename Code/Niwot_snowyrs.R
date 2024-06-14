@@ -121,7 +121,7 @@ niwot_ave <- ggplot((wtryr_ave)) +
         legend.position = 'none') +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'),
+         
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
@@ -164,7 +164,7 @@ niwot_snowyrs <- ggplot((snow_years)) +
         legend.title = element_blank()) +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'),
+         
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
@@ -232,7 +232,7 @@ szn_cols <- c("#7EA8C4","#EFD15E","#E6A0C4")
 #   #theme(legend.position = 'none') +
 #   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
 #                                   hjust = 0.5),
-#         text = element_text(family = 'serif'),
+#          
 #         axis.text = element_text(size = 8),
 #         axis.title = element_text(size =8),
 #         axis.text.y = element_blank(),
@@ -260,7 +260,7 @@ cqplot <- ggplot(cq_slopes) +
   #theme(legend.position = 'none') +
   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'),
+         
         axis.text = element_text(size = 8),
         axis.title = element_text(size =8),
         axis.text.y = element_blank()) 
