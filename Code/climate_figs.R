@@ -27,9 +27,9 @@ lv_szn <- read.csv('Data/LochValeClimate_IMERG_01302024/SWE_kgm2_monthly_loch.cs
   labs(x='', y='',
        title = 'Loch Vale') +
   theme_classic() +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif')) +
+        text = element_text(  )) +
   scale_x_date(labels = date_format('%b'))
 # winter (snow increasing November-April)
 # snowmelt runoff (snow decreasing May-July)
@@ -56,9 +56,9 @@ niwot_szn <- read.csv('Data/NiwotClimate_IMERG_02282024/SWE_kgm2_monthly_niwot.c
   labs(x='', y='Mean SWE 1980-2019'~(kg*~m^-2),
        title='Niwot Ridge') +
   theme_classic() +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif')) +
+        text = element_text(  )) +
   scale_x_date(labels = date_format('%b'))
 # winter (snow increasing November-May)
 # snowmelt runoff (snow decreasing June-July)
@@ -84,9 +84,9 @@ andy_szn<-read.csv('Data/AndrewsClimate_IMERG_01302024/SWE_kgm2_monthly_andy.csv
   labs(x='Month', y='',
        title = 'Andrews Forest') +
   theme_classic() +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif')) +
+        text = element_text(  )) +
   scale_x_date(labels = date_format('%b'))
 # winter (snow increasing December-February)
 # snowmelt runoff (snow decreasing March-April)
@@ -162,9 +162,9 @@ LV_temp_inc <- ggplot(LV_summerslope, aes(Year, average_seasonal_temp)) +
        title = 'Loch Vale - summer') +
   theme_classic() +
   annotate('text', x=2015, y=13.5, label = 'p-value < 0.05; slope = 0.029') +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(  ))
 
 
 ## 2b. Niwot ####
@@ -226,9 +226,9 @@ niwot_temp_inc <- ggplot(niwot_summerslope, aes(Year, average_seasonal_temp)) +
        title = 'Niwot Ridge - summer') +
   theme_classic() +
   annotate('text', x=2015, y=13.5, label = 'p-value < 0.01; slope = 0.032') +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(  ))
 
 
 ## 2c. Andrews ####
@@ -289,9 +289,9 @@ andy_summer <- ggplot(andy_summerslope, aes(Year, average_seasonal_temp)) +
        title='Andrews Forest - summer') +
   theme_classic() +
   annotate('text', x=2015, y=13.5, label = 'p-value < 0.0001; slope = 0.048')  +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(  ))
 
 
 # andy_snowmeltslope <- andy_temp_annual |> filter(season=='Snowmelt runoff')
@@ -305,9 +305,9 @@ andy_summer <- ggplot(andy_summerslope, aes(Year, average_seasonal_temp)) +
 #   labs(x='', y='', title='Andrews Forest - snowmelt runoff') +
 #   theme_classic() +
 #   annotate('text', x=2005, y=9.5, label = 'p-value < 0.05; slope = 0.039')  +
-#   theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+#   theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
 #                                   hjust = 0.5),
-#         text = element_text(family = 'serif'))
+#         text = element_text(  ))
 
 
 # 2d. Patchwork airtemp plots ####
@@ -335,9 +335,9 @@ lv_snow <- read.csv('Data/LochValeClimate_IMERG_01302024/SWE_kgm2_monthly_loch.c
   geom_bar(stat='identity', aes(waterYear, Tot_snow)) +
   labs(x='', y='', title='Loch Vale') +
   theme_classic() +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text(  ))
 
 ## 3b. Niwot Ridge ####
 niwot_snow <- read.csv('Data/NiwotClimate_IMERG_02282024/SWE_kgm2_monthly_niwot.csv', skip=7) |>
@@ -354,9 +354,9 @@ niwot_snow <- read.csv('Data/NiwotClimate_IMERG_02282024/SWE_kgm2_monthly_niwot.
   geom_bar(stat='identity', aes(waterYear, Tot_snow)) +
   labs(x='', y='', title='Niwot Ridge') +
   theme_classic() +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',   size = rel(0.75),
                                   hjust = 0.5),
-        text = element_text(family = 'serif'))
+        text = element_text())
 # 2011 is highest snow year (8.189045m)
 # lowest snow year is 1981 - but we don't have stream data that year - using lowest snow year on record after 1986 (when data starts): 1991 (2.695854m)
 

@@ -84,17 +84,17 @@ hydro <- '#4D6BBC'
           axis.title.y.right = element_text(color = hydro),
           axis.title.y = element_text(color = nitr, vjust = -2),
           #axis.line.y.left = element_line(color = "red4"),
-          legend.title = element_blank(),
-          legend.position = 'none') +
+          legend.title = element_blank()) +
     scale_x_date(labels = date_format('%b')) +
     scale_linetype_manual(values = c(3, 2, 1)) +
     geom_vline(xintercept= c(as.numeric(as.Date("1900-12-01")), as.numeric(as.Date('1901-05-01')), as.numeric(as.Date('1901-07-01'))),
                linetype=4, colour="grey") +
-    theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+    theme(plot.title = element_text(face = 'bold', size = rel(0.5),
                                     hjust = 0.5),
            
           axis.text = element_text(size = 9),
-          axis.title = element_text(size =9))
+          axis.title = element_text(size =9)) +
+    theme(legend.position = 'none')
   
   p1
   
@@ -123,12 +123,12 @@ hydro <- '#4D6BBC'
     scale_linetype_manual(values = c(3, 2, 1)) +
     geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")), as.numeric(as.Date('1901-04-01')), as.numeric(as.Date('1901-07-01'))),
                linetype=4, colour="grey") +
-    theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+    theme(plot.title = element_text(face = 'bold',  size = rel(0.5),
                                     hjust = 0.5),
            
           axis.text = element_text(size = 9),
-          axis.title = element_text(size =9),
-          legend.position='none')
+          axis.title = element_text(size =9))  +
+    theme(legend.position = 'none')
   p2
   
   
@@ -159,7 +159,7 @@ hydro <- '#4D6BBC'
     theme_classic() +
     labs(y = 'log10 nitrate',
          x = 'log10 streamflow')  +
-    theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+    theme(plot.title = element_text(face = 'bold',  size = rel(0.5),
                                     hjust = 0.5),
            
           axis.text = element_text(size = 9),
@@ -192,13 +192,13 @@ p3
     scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
     # guides(fill = 'none') + 
     #theme(legend.position = 'none') +
-    theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+    theme(plot.title = element_text(face = 'bold', size = rel(0.5),
                                     hjust = 0.5),
            
           axis.text = element_text(size = 9),
           axis.title = element_text(size =9),
-          axis.text.y = element_blank(),
-          legend.position='none')
+          axis.text.y = element_blank()) +
+    theme(legend.position = 'none')
 p4
   
 # Flow duration curves ####
@@ -229,12 +229,12 @@ p5 <- Qdat |> ggplot(aes(x = P, y = discharge_Ls, color = season, linetype =deca
   scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   scale_linetype_manual('',values = c(3, 2, 1)) +
   theme_classic() +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+  theme(plot.title = element_text(face = 'bold',  size = rel(0.5),
                                   hjust = 0.5),
          
         axis.text = element_text(size = 9),
-        axis.title = element_text(size =9),
-        legend.position='none')
+        axis.title = element_text(size =9)) +
+  theme(legend.position = 'none')
 
 p5
 

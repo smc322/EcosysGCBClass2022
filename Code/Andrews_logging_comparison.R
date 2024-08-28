@@ -62,7 +62,7 @@ rawdata <- ggplot(log_years) +
         axis.title.y.right = element_text(color = hydro),
         axis.title.y = element_text(color = nitr, vjust = -2),
         legend.title = element_blank()) +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold', size = rel(0.75),
                                   hjust = 0.5),
          
         axis.text = element_text(size = 9),

@@ -119,13 +119,13 @@ niwot_ave <- ggplot((wtryr_ave)) +
         axis.title.y = element_text(color = nitr, vjust = -2),
         legend.title = element_blank(),
         legend.position = 'none') +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold',  size = rel(0.75),
                                   hjust = 0.5),
          
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
-  geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")),as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
+  geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")),as.numeric(as.Date("1901-06-01")), as.numeric(as.Date('1901-08-01'))),
              linetype=4, colour="grey50") +
   # annotate('text', label = 'snowmelt runoff', x = as.Date("1901-05-15"), y = 0.05, size = 3, color = 'grey50') +
   scale_x_date(labels = date_format('%b'))
@@ -162,13 +162,13 @@ niwot_snowyrs <- ggplot((snow_years)) +
         axis.title.y.right = element_text(color = hydro),
         axis.title.y = element_text(color = nitr, vjust = -2),
         legend.title = element_blank()) +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.75),
+  theme(plot.title = element_text(face = 'bold', size = rel(0.75),
                                   hjust = 0.5),
          
         axis.text = element_text(size = 9),
         axis.title = element_text(size = 9)) +
   # add snowmelt period
-  geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")),as.numeric(as.Date("1901-05-01")), as.numeric(as.Date('1901-08-01'))),
+  geom_vline(xintercept= c(as.numeric(as.Date("1900-11-01")),as.numeric(as.Date("1901-06-01")), as.numeric(as.Date('1901-08-01'))),
              linetype=4, colour="grey50") +
   # annotate('text', label = 'snowmelt runoff', x = as.Date("1901-05-15"), y = 0.05, size = 3, color = 'grey50') +
   scale_x_date(labels = date_format('%b'))
@@ -258,7 +258,7 @@ cqplot <- ggplot(cq_slopes) +
   scale_color_manual('', values = c("#7EA8C4","#EFD15E","#E6A0C4")) +
   # guides(fill = 'none') + 
   #theme(legend.position = 'none') +
-  theme(plot.title = element_text(face = 'bold', family = 'serif', size = rel(0.5),
+  theme(plot.title = element_text(face = 'bold', size = rel(0.5),
                                   hjust = 0.5),
          
         axis.text = element_text(size = 8),
